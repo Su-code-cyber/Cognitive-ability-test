@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const targetPath = resolve(projectRoot, '..', 'question1.html')
+const targetPath = resolve(projectRoot, '..', 'question.html')
 process.chdir(projectRoot)
 
 const result = await build({

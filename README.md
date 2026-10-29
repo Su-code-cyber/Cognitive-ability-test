@@ -1,4 +1,6 @@
-# Question1：认知能力测试
+# Question：认知能力测试
+
+笔试任务、验收标准和提交要求见 [笔试题说明](./笔试题说明.md)。
 
 独立前端工程，使用 React 19、TypeScript、Vite 7、Ant Design 5 和 Tailwind CSS 4。
 
@@ -15,7 +17,7 @@ AI 面试、录音录像、管理后台、题库编辑、用户管理、报表�
 需要 Node.js 20.19+ 或 22.12+，建议使用当前 LTS 版本。
 
 ```bash
-cd question1
+cd question
 npm ci
 cp .env.example .env.local
 npm run dev
@@ -49,15 +51,15 @@ npm run preview
 npm run build:html
 ```
 
-产物为工程上级目录的 `question1.html`，脚本、样式和本地图片全部内嵌，可直接双击打开，页面使用 Hash 路由。此文件仍需现有后端提供登录、题目和作答接口；本地文件默认请求 `http://localhost:8003`（可在构建前通过 `VITE_API_BASE_URL` 或 `VITE_API_PROXY_TARGET` 配置），后端需允许本地文件来源的跨域 Cookie 请求。通过 HTTP 部署时默认使用同源 `/api/blue/`，也可构建前设置 `VITE_API_BASE_URL`。
+产物为工程上级目录的 `question.html`，脚本、样式和本地图片全部内嵌，可直接双击打开，页面使用 Hash 路由。此文件仍需现有后端提供登录、题目和作答接口；本地文件默认请求 `http://localhost:8003`（可在构建前通过 `VITE_API_BASE_URL` 或 `VITE_API_PROXY_TARGET` 配置），后端需允许本地文件来源的跨域 Cookie 请求。通过 HTTP 部署时默认使用同源 `/api/blue/`，也可构建前设置 `VITE_API_BASE_URL`。
 
 ## Docker
 
 ```bash
-docker build -t question1 .
+docker build -t question .
 docker run --rm -p 8080:80 \
   -e API_PROXY_TARGET=http://host.docker.internal:8003 \
-  question1
+  question
 ```
 
 Docker 镜像沿用 task4 的默认 API 网关配置；运行时可用 `API_PROXY_TARGET` 指定实际后端。与前端不同源部署时，可在构建前设置 `VITE_API_BASE_URL`，并由后端配置允许携带 Cookie 的跨域请求。
