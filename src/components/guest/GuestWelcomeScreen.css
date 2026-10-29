@@ -1,0 +1,17 @@
+/* 覆盖全局 index.css 中 button 的浅色底与默认 focus 外框 */
+button.guest-header-logout {
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button.guest-header-logout:hover,
+button.guest-header-logout:focus,
+button.guest-header-logout:focus-visible,
+button.guest-header-logout:active {
+  background-color: rgb(255 255 255 / 0.2) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}

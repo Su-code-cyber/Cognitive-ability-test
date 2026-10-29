@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Exam / 题库富文本展示：图片无论原尺寸多大都缩放到容器内 */
+.exam-safe-html-content {
+  overflow-x: hidden; /* 防止极大宽度图片撑出布局 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.exam-safe-html-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@keyframes guest-exam-timer-warning-flash {
+  0%, 100% {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.35);
+  }
+  50% {
+    color: #ffffff;
+    background: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+  }
+}
+
+.guest-exam-timer-warning {
+  animation: guest-exam-timer-warning-flash 0.8s ease-in-out infinite;
+}
+
+.guest-exam-timer-warning span {
+  color: inherit !important;
+}
+
+@keyframes guest-exam-answer-warning-flash {
+  0%, 100% {
+    border-color: rgba(220, 38, 38, 0.65);
+    box-shadow:
+      0 0 0 3px rgba(220, 38, 38, 0.18),
+      0 8px 32px rgba(220, 38, 38, 0.2);
+  }
+  50% {
+    border-color: #ef4444;
+    box-shadow:
+      0 0 0 7px rgba(239, 68, 68, 0.28),
+      0 10px 42px rgba(220, 38, 38, 0.48);
+  }
+}
+
+.guest-exam-answer-warning {
+  animation: guest-exam-answer-warning-flash 0.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guest-exam-timer-warning {
+    animation: none;
+    color: #dc2626 !important;
+    background: rgba(220, 38, 38, 0.08);
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.35);
+  }
+
+  .guest-exam-answer-warning {
+    animation: none;
+    border-color: #dc2626 !important;
+    box-shadow:
+      0 0 0 4px rgba(220, 38, 38, 0.22),
+      0 8px 32px rgba(220, 38, 38, 0.24) !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}

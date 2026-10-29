@@ -1,0 +1,103 @@
+/* 登录页：所有带前缀/后缀的输入统一高度（不依赖 classNames.affixWrapper：AntD 5 会覆盖传入的 affixWrapper 类名） */
+.login-figma-form .ant-input-affix-wrapper {
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  min-height: 3.5rem !important;
+  height: 3.5rem !important;
+  padding-block: 0 !important;
+  padding-inline: 1rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgb(226 232 240) !important;
+  background-color: rgb(248 250 252 / 0.5) !important;
+  align-items: center !important;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.login-figma-form .ant-input-affix-wrapper:hover:not(:focus-within) {
+  border-color: rgb(203 213 225) !important;
+}
+
+.login-figma-form .ant-input-affix-wrapper:focus-within {
+  border-color: rgb(0 102 255 / 0.6) !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 4px rgb(0 102 255 / 0.1) !important;
+}
+
+.login-figma-form .ant-input-affix-wrapper .ant-input {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: rgb(30 41 59);
+  background: transparent;
+}
+
+.login-figma-form .ant-input-affix-wrapper .ant-input::placeholder {
+  color: rgb(148 163 184);
+}
+
+.login-figma-form .ant-input-affix-wrapper .ant-input-prefix {
+  margin-inline-end: 0.5rem;
+}
+
+.login-figma-form .ant-input-affix-wrapper .ant-input-suffix {
+  margin-inline-start: 0.5rem;
+}
+
+/* 登录/注册分段控件：轨道 4px 内边距 / 14px 圆角，选中块与滑块固定 10px 圆角 */
+.login-auth-segmented.ant-segmented {
+  border: 0;
+  border-radius: 14px;
+  padding: 4px;
+}
+
+.login-auth-segmented .ant-segmented-item,
+.login-auth-segmented .ant-segmented-thumb {
+  border-radius: 10px !important;
+}
+
+.login-auth-segmented .ant-segmented-item {
+  min-width: 88px;
+  padding-inline: 18px;
+}
+
+.login-auth-segmented .ant-segmented-item-label {
+  min-height: 34px;
+  line-height: 34px;
+  font-size: 14px;
+  font-weight: 700;
+  padding-inline: 0;
+}
+
+.login-auth-segmented .ant-segmented-item-selected,
+.login-auth-segmented .ant-segmented-thumb {
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+}
+
+/* 滑块仅动画 transform 与 width，250ms */
+.login-auth-segmented .ant-segmented-thumb {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 鼠标点击不留方形焦点框，键盘 Tab 保留可见焦点环 */
+.login-auth-segmented .ant-segmented-item-focused {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(0 102 255 / 0.18);
+}
+
+@media (max-width: 640px) {
+  .login-auth-segmented .ant-segmented-item {
+    min-width: 72px;
+    padding-inline: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-auth-segmented .ant-segmented-thumb {
+    transition: none;
+  }
+}
