@@ -10,8 +10,12 @@ import {
   Heart,
 } from 'lucide-react'
 import logoCampus from '@/assets/logo-campus.png'
+import { useAuth } from '@/hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 export default function GuestCompletionScreen({ recruitmentYear }: { recruitmentYear: number }) {
+  const { logout } = useAuth()
+  const navigate = useNavigate()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -91,6 +95,13 @@ export default function GuestCompletionScreen({ recruitmentYear }: { recruitment
               期待在充满创意的蓝色光标森林里，遇见那个闪闪发光的你！✨
             </p>
           </div>
+
+          <button type="button" className="mt-6 rounded-xl border border-white/40 bg-white/10 px-6 py-2 text-white cursor-pointer"
+            onClick={async () => {
+              try { await logout() } finally { navigate('/login', { replace: true }) }
+            }}>
+            退出登录
+          </button>
 
           <div className="mt-12 w-full flex justify-center">
             <a

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Spin, message, Button, Popconfirm } from 'antd'
+import { Alert, Spin, message, Button, Popconfirm } from 'antd'
 import GuestWelcomeScreen from '@/components/guest/GuestWelcomeScreen'
 import GuestTestScreen from '@/components/guest/GuestTestScreen'
 import GuestCompletionScreen from '@/components/guest/GuestCompletionScreen'
@@ -69,9 +69,12 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
   const [totalQuestions, setTotalQuestions] = useState<number>()
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const submissionLockRef = useRef(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [availableExamId, setAvailableExamId] = useState<string | null>(null)
   const latestAnswerRef = useRef<string>('') // 记录当前题目已选择的答案
   const [existingSessionCode, setExistingSessionCode] = useState<string | null>(null)
+  const [entryLoading, setEntryLoading] = useState(true)
 
   useEffect(() => {
     if (phase !== 'welcome') return
@@ -91,8 +94,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
         }
 
         if (recordRes.code === 200 && recordRes.data?.list?.length) {
-          // 取第一个记录作为继续测试的目标
-          setExistingSessionCode(recordRes.data.list[0].sessionCode)
+          const examId = examRes.data?.list?.[0]?.examId ?? examRes.data?.list?.[0]?.id
+          const record = recordRes.data.list.find((r) => r.examId === examId)
+          setExistingSessionCode(record?.status === 'in_progress' ? record.sessionCode : null)
+          if (record?.status === 'completed') setPhase('done')
         } else {
           setExistingSessionCode(null)
         }
@@ -100,8 +105,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
       .catch(() => {
         if (!cancelled) {
           setExistingSessionCode(null)
+          message.error('加载测评失败，请刷新页面重试')
         }
       })
+      .finally(() => { if (!cancelled) setEntryLoading(false) })
 
     return () => {
       cancelled = true
@@ -125,6 +132,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
         }
 
         const data = resumeRes.data
+        if (data.isExamFinished || data.status === 'completed') {
+          setPhase('done')
+          return
+        }
         const initialQuestion =
           data.currentQuestion ??
           data.firstQuestion ??
@@ -163,6 +174,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
         return
       }
       const data = res.data
+      if (data.isExamFinished || data.status === 'completed') {
+        setPhase('done')
+        return
+      }
       const session = data.sessionCode ?? null
 
       // 首次开始后立刻查询进度以获取总题数等信息
@@ -211,9 +226,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
 
   const handleSubmitAnswer = useCallback(
     (answer: string) => {
-      latestAnswerRef.current = '' // 提交后清空当前缓存答案
-      if (!sessionCode || !question || submitting) return
+      if (!sessionCode || !question || submissionLockRef.current) return
       const questionIndex = question.questionIndex ?? 1
+      submissionLockRef.current = true
+      setSubmitError(null)
       setSubmitting(true)
       submitAnswer({
         sessionCode,
@@ -223,8 +239,7 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
       })
         .then((res) => {
           if (res.code !== 200 || !res.data) {
-            message.error(res.message || '提交失败')
-            return
+            throw new Error(res.message || '提交失败')
           }
           const data = res.data
           if (data.isExamFinished) {
@@ -244,11 +259,14 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
           }
         })
         .catch((e) => {
-          message.error(e instanceof Error ? e.message : '提交失败')
+          setSubmitError(e instanceof Error ? e.message : '提交失败')
         })
-        .finally(() => setSubmitting(false))
+        .finally(() => {
+          submissionLockRef.current = false
+          setSubmitting(false)
+        })
     },
-    [sessionCode, question, submitting, loadProgress]
+    [sessionCode, question, loadProgress]
   )
 
   // 题目变化时重置已选答案
@@ -264,13 +282,14 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
     remainingSeconds: question?.remainingSeconds,
     active: phase === 'testing' && !!question,
     onExpire: () => {
-      // 若用户已选择选项则提交所选答案，否则提交空答案
+      // 后端按截止时间判定超时，过期提交会被记为空答。
       handleSubmitAnswer(latestAnswerRef.current || '')
     },
   })
 
   const handleFinish = useCallback(() => {
-    if (!sessionCode || submitting) return
+    if (!sessionCode || submissionLockRef.current) return
+    submissionLockRef.current = true
     setSubmitting(true)
     finishExam(sessionCode)
       .then((res) => {
@@ -284,15 +303,18 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
       .catch((e) => {
         message.error(e instanceof Error ? e.message : '交卷失败')
       })
-      .finally(() => setSubmitting(false))
-  }, [sessionCode, submitting])
+      .finally(() => {
+        submissionLockRef.current = false
+        setSubmitting(false)
+      })
+  }, [sessionCode])
 
   if (phase === 'welcome') {
     return (
       <div style={{ width: '100%', minHeight: '100vh', margin: 0 }}>
         <GuestWelcomeScreen
           onStart={handleStart}
-          loading={loading}
+          loading={loading || entryLoading}
           hasRecord={!!existingSessionCode}
           recruitmentYear={recruitmentYear}
           recruitmentSeason={recruitmentSeason}
@@ -312,6 +334,10 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
   if (phase === 'testing' && question) {
     return (
       <div style={{ width: '100%', minHeight: '100vh', margin: 0 }}>
+        {submitError && (
+          <Alert type="error" showIcon message={`答案提交失败：${submitError}`}
+            action={<Button disabled={submitting} onClick={() => handleSubmitAnswer(latestAnswerRef.current)}>重试提交</Button>} />
+        )}
         <GuestTestScreen
           key={question.questionId}
           question={question}

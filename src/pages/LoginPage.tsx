@@ -255,7 +255,10 @@ export default function LoginPage() {
 
               <Form.Item
                 name="password"
-                rules={[{ required: true, whitespace: true, message: '请输入密码' }]}
+                rules={[
+                  { required: true, whitespace: true, message: '请输入密码' },
+                  { min: 8, max: 128, message: '密码须为8至128位' },
+                ]}
                 className="!mb-0"
               >
                 <Input.Password

@@ -1,10 +1,10 @@
-import { writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const targetPath = resolve(projectRoot, '..', 'question.html')
+const targetPath = resolve(projectRoot, 'dist', 'question.html')
 process.chdir(projectRoot)
 
 const result = await build({
@@ -59,5 +59,6 @@ html = html.replace('</body>', () => `${scripts.join('\n')}\n  </body>`)
 const remaining = [...files.keys()].filter(filename => !embedded.has(filename))
 if (remaining.length) throw new Error(`Unembedded output files: ${remaining.join(', ')}`)
 
+await mkdir(dirname(targetPath), { recursive: true })
 await writeFile(targetPath, html, 'utf8')
 console.log(`Created ${basename(targetPath)} (${(Buffer.byteLength(html) / 1024 / 1024).toFixed(2)} MB): ${targetPath}`)

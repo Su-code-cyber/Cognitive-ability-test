@@ -8,19 +8,26 @@
     "build": "tsc -b && vite build",
     "build:html": "tsc -b && node scripts/build-single-html.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:api": "node scripts/backend.mjs serve",
+    "db:init": "node scripts/backend.mjs init",
+    "test:api": "node scripts/backend.mjs test",
+    "test:e2e": "node scripts/e2e.mjs",
+    "test:e2e:install": "node scripts/e2e.mjs --install",
+    "test:clean": "node scripts/clean-tests.mjs"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.6.1",
     "antd": "^5.29.3",
     "dompurify": "^3.4.17",
     "lucide-react": "^1.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.13.1",
-    "@ant-design/icons": "^5.6.1"
+    "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",

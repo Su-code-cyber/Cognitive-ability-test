@@ -20,17 +20,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await authService.logout()
-    setUser(null)
+    try {
+      await authService.logout()
+    } finally {
+      setUser(null)
+    }
   }, [])
 
   useEffect(() => {
-    if (user) {
-      setLoading(false)
-      return
-    }
+    // A local cache is only for display; every page load checks the server session.
     refreshUser()
-  }, [user, refreshUser])
+  }, [refreshUser])
 
   const value = {
     user,

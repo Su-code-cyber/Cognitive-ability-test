@@ -45,9 +45,8 @@ export default function GuestTestScreen({
     if (question.questionType === 1 && selectedKeys.length === 0) return
     if (question.questionType !== 1 && !selectedKeys[0]) return
     onSubmit(answer)
-    setSelectedKeys([])
-    onAnswerChange('')
-  }, [selectedKeys, question.questionType, onSubmit, submitting, onAnswerChange])
+    // Keep the selection until the server confirms success; a new question remounts this component.
+  }, [selectedKeys, question.questionType, onSubmit, submitting])
 
   const isLast = totalQuestions > 0 && questionIndex >= totalQuestions
   const warningSeconds = question.unansweredWarningSeconds ?? 10

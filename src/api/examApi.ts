@@ -12,6 +12,8 @@ interface AvailableExamPageResult {
 
 interface StartExamResult {
   sessionCode: string
+  status?: 'in_progress' | 'completed'
+  isExamFinished?: boolean
   firstQuestion?: Record<string, unknown>
   currentQuestion?: Record<string, unknown>
 }
@@ -50,7 +52,7 @@ interface ExamProgressResult {
 }
 
 interface ExamRecordPageResult {
-  list: { sessionCode: string }[]
+  list: { sessionCode: string; examId: string; status: 'in_progress' | 'completed' }[]
 }
 
 export function getAvailableExams({ pageNum, pageSize }: PageRequest) {

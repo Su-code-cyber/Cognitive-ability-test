@@ -40,11 +40,11 @@ const rules: { icon: ReactNode; text: string }[] = [
   },
   {
     icon: <Clock size={18} strokeWidth={2} className="text-cyan-200" />,
-    text: '每题限时1分钟，超时自动跳转到下一题。',
+    text: '每题按页面倒计时限时作答；超时记为空答并进入下一题。',
   },
   {
     icon: <BrainCircuit size={18} strokeWidth={2} className="text-cyan-200" />,
-    text: '请保持网络稳定，交卷前勿关闭页面。',
+    text: '已提交进度可恢复；当前题尚未提交的选择不会保存。',
   },
 ]
 
@@ -64,7 +64,7 @@ function GuestWelcomeContent({ onStart, loading, hasRecord, recruitmentYear, rec
   const handleLogoutConfirm = () => {
     modal.confirm({
       title: '确认退出登录？',
-      content: '退出后将返回登录页，当前页面状态不会保留。',
+      content: '退出后返回登录页，已提交的考试进度仍会保留。',
       okText: '确认退出',
       cancelText: '取消',
       onOk: () => void handleLogout(),
@@ -172,10 +172,10 @@ function GuestWelcomeContent({ onStart, loading, hasRecord, recruitmentYear, rec
           <div className="w-full max-w-[440px] shrink-0 space-y-6 relative z-30 mx-auto lg:mx-0">
             <div className="rounded-[1.75rem] bg-white/12 backdrop-blur-xl border border-white/25 shadow-[0_20px_50px_rgba(0,40,80,0.2)] p-6 sm:p-7">
               <p className="text-[15px] text-cyan-50/95 leading-relaxed mb-6">
-                {hasRecord ? '检测到未完成的测评记录，可继续作答。' : '请仔细阅读测试说明，然后点击“开始测评”，共约 30 题。'}
+                {hasRecord ? '检测到未完成的测评记录，可继续作答。' : '请仔细阅读测试说明，然后点击“开始测评”。'}
               </p>
               <p className="mb-6 rounded-xl border border-cyan-100/35 bg-white/12 px-4 py-3 text-sm font-medium text-cyan-50/95">
-                本次测评预计需要30分钟，请提前安排时间。
+                题量以实际试卷为准。每套试卷每个账号可参加一次，交卷后无法重新作答。
               </p>
 
               <h2 className="text-lg font-bold text-white flex items-center gap-2.5 mb-5">
