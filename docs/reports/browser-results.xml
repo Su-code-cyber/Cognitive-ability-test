@@ -1,0 +1,16 @@
+<testsuites id="" name="" tests="6" failures="0" skipped="0" errors="0" time="40.123482">
+<testsuite name="exam.spec.ts" timestamp="2026-10-30T15:46:52.033Z" hostname="" tests="6" failures="0" skipped="0" time="35.627" errors="0">
+<testcase name="真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复" classname="exam.spec.ts" time="7.647">
+</testcase>
+<testcase name="真实页面：刷新续考、倒计时不重置、提前交卷" classname="exam.spec.ts" time="4.61">
+</testcase>
+<testcase name="真实页面：未选答案超时自动切题" classname="exam.spec.ts" time="9.565">
+</testcase>
+<testcase name="真实页面：提交响应丢失后重试不重复推进" classname="exam.spec.ts" time="1.926">
+</testcase>
+<testcase name="真实页面：两个独立用户进度互不影响" classname="exam.spec.ts" time="4.391">
+</testcase>
+<testcase name="真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录" classname="exam.spec.ts" time="7.488">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,85 @@
+<testsuites id="" name="" tests="6" failures="0" skipped="5" errors="1" time="49.877621">
+<testsuite name="exam.spec.ts" timestamp="2026-10-30T15:40:16.820Z" hostname="" tests="6" failures="0" skipped="5" time="45.459" errors="1">
+<testcase name="真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复" classname="exam.spec.ts" time="45.459">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\test-failed-1.png]]
+
+[[ATTACHMENT|playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\error-context.md]]
+
+[[ATTACHMENT|playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\trace.zip]]
+]]>
+</system-out>
+<error message="Test timeout of 45000ms exceeded." type="Error">
+<![CDATA[  exam.spec.ts:28:1 › 真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复 ────────────────────────────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.check: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('radio', { name: '注册', exact: true })
+        - locator resolved to <input type="radio" name="_r_2_" class="ant-segmented-item-input"/>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+          - waiting 100ms
+        73 × waiting for element to be visible, enabled and stable
+           - element is not visible
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+       6 | async function authenticate(page: Page, phone: string, mode: '注册' | '登录' = '注册') {
+       7 |   await page.goto('/login')
+    >  8 |   if (mode === '注册') await page.getByRole('radio', { name: '注册', exact: true }).check()
+         |                                                                                 ^
+       9 |   await page.getByRole('textbox', { name: '手机号', exact: true }).fill(phone)
+      10 |   await page.getByLabel('密码', { exact: true }).fill(password)
+      11 |   await page.getByRole('checkbox').check()
+        at authenticate (D:\Blue\intern-written-test\tests\e2e\exam.spec.ts:8:81)
+        at D:\Blue\intern-written-test\tests\e2e\exam.spec.ts:29:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\.runtime\playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\.runtime\playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\.runtime\playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\.runtime\playwright-results\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="真实页面：刷新续考、倒计时不重置、提前交卷" classname="exam.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="真实页面：未选答案超时自动切题" classname="exam.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="真实页面：提交响应丢失后重试不重复推进" classname="exam.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="真实页面：两个独立用户进度互不影响" classname="exam.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录" classname="exam.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>
