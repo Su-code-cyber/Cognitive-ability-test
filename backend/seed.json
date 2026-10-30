@@ -1,0 +1,12 @@
+{
+  "examId": "cognitive-demo",
+  "title": "认知能力示例测评（6题）",
+  "questions": [
+    {"id":"q1","content":"<p>数列 2、4、8、16 的下一项是？</p>","questionType":0,"options":{"A":"18","B":"24","C":"32","D":"64"},"correctAnswer":"C"},
+    {"id":"q2","content":"<p>以下哪些数是偶数？（多选）</p>","questionType":1,"options":{"A":"2","B":"3","C":"8","D":"9"},"correctAnswer":"A,C"},
+    {"id":"q3","content":"<p>所有研究员都需要阅读文献。小林是研究员。可以推出：</p>","questionType":0,"options":{"A":"小林需要阅读文献","B":"阅读文献的人都是研究员","C":"小林不需要阅读文献","D":"无法判断小林是否需要阅读文献"},"correctAnswer":"A"},
+    {"id":"q4","content":"<p>某组周一完成 12 项任务，周二完成 18 项。</p><p>两天平均每天完成多少项？</p>","questionType":0,"options":{"A":"12","B":"15","C":"18","D":"30"},"correctAnswer":"B"},
+    {"id":"q5","content":"<p>以下哪些陈述为真？（多选）</p>","questionType":1,"options":{"A":"正方形有四条边","B":"三角形有四个角","C":"1 小时等于 60 分钟","D":"所有月份都有 31 天"},"correctAnswer":"A,C"},
+    {"id":"q6","content":"<p>“谨慎”的近义词是：</p>","questionType":0,"options":{"A":"鲁莽","B":"轻率","C":"草率","D":"审慎"},"correctAnswer":"D"}
+  ]
+}

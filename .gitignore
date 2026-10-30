@@ -33,3 +33,14 @@ dist-ssr
 *.sln
 *.sw?
 /.vite/
+
+# Backend dependencies, secrets, databases and local test artifacts
+/.venv/
+/.runtime/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/backend/data/
+/backend/.env
+/test-results/
+/playwright-report/
