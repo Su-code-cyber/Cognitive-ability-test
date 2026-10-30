@@ -69,10 +69,10 @@ Call log:
 
 ```ts
   1   | import { test, expect, type Page } from '@playwright/test'
-  2   | 
+  2   |
   3   | const prefix = '/api/blue/bluecommonservice'
   4   | const password = 'Local-test-123!'
-  5   | 
+  5   |
   6   | async function authenticate(page: Page, phone: string, mode: '注册' | '登录' = '注册') {
   7   |   await page.goto('/login')
   8   |   if (mode === '注册') await page.getByText('注册', { exact: true }).click()
@@ -83,18 +83,18 @@ Call log:
       |                                                               ^ Error: locator.click: Test timeout of 45000ms exceeded.
   13  |   await expect(page).toHaveURL(/\/exam$/)
   14  | }
-  15  | 
+  15  |
   16  | async function begin(page: Page) {
   17  |   await page.getByRole('button', { name: '开始测评', exact: true }).click()
   18  |   await expect(page.getByRole('radio').first()).toBeVisible()
   19  | }
-  20  | 
+  20  |
   21  | async function next(page: Page, index: number) {
   22  |   const response = page.waitForResponse((r) => r.url().endsWith('/exam/submitAnswer') && r.request().method() === 'POST')
   23  |   await page.getByRole('button', { name: index === 6 ? '提交并完成' : '下一题', exact: true }).click()
   24  |   expect((await response).status()).toBe(200)
   25  | }
-  26  | 
+  26  |
   27  | test('真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复', async ({ page }) => {
   28  |   await authenticate(page, '13800001001')
   29  |   await page.getByRole('button', { name: '退出', exact: true }).click()
@@ -117,7 +117,7 @@ Call log:
   46  |   await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible()
   47  |   await page.screenshot({ path: '.runtime/completed.png' })
   48  | })
-  49  | 
+  49  |
   50  | test('真实页面：刷新续考、倒计时不重置、提前交卷', async ({ page }) => {
   51  |   await authenticate(page, '13800001002')
   52  |   await begin(page)
@@ -142,7 +142,7 @@ Call log:
   71  |   })
   72  |   expect(forbidden.status()).toBe(409)
   73  | })
-  74  | 
+  74  |
   75  | test('真实页面：未选答案超时自动切题', async ({ page }) => {
   76  |   await authenticate(page, '13800001003')
   77  |   await begin(page)
@@ -153,7 +153,7 @@ Call log:
   82  |   expect(result.nextQuestion.questionIndex).toBe(2)
   83  |   await expect(page.getByRole('checkbox').first()).toBeVisible()
   84  | })
-  85  | 
+  85  |
   86  | test('真实页面：提交响应丢失后重试不重复推进', async ({ page }) => {
   87  |   await authenticate(page, '13800001004')
   88  |   await begin(page)
@@ -169,7 +169,7 @@ Call log:
   98  |   await expect(page.getByRole('radio')).toHaveCount(0)
   99  |   await page.screenshot({ path: '.runtime/answering.png' })
   100 | })
-  101 | 
+  101 |
   102 | test('真实页面：两个独立用户进度互不影响', async ({ browser }) => {
   103 |   const a = await browser.newContext()
   104 |   const b = await browser.newContext()
