@@ -13,6 +13,7 @@ export default defineConfig({
     ['junit', { outputFile: '.runtime/browser-results.xml' }],
   ],
   use: {
+    actionTimeout: 10_000,
     baseURL: 'http://127.0.0.1:15173',
     browserName: 'chromium',
     screenshot: 'only-on-failure',

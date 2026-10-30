@@ -5,11 +5,12 @@ const password = 'Local-test-123!'
 
 async function authenticate(page: Page, phone: string, mode: '注册' | '登录' = '注册') {
   await page.goto('/login')
-  if (mode === '注册') await page.getByText('注册', { exact: true }).click()
+  if (mode === '注册') await page.getByRole('radiogroup').getByText('注册', { exact: true }).click()
   await page.getByRole('textbox', { name: '手机号', exact: true }).fill(phone)
   await page.getByLabel('密码', { exact: true }).fill(password)
   await page.getByRole('checkbox').check()
-  await page.getByRole('button', { name: mode, exact: true }).click()
+  // Ant Design inserts visual spacing into two-character Chinese button labels.
+  await page.getByRole('button', { name: mode === '注册' ? /^注\s*册$/ : /^登\s*录$/ }).click()
   await expect(page).toHaveURL(/\/exam$/)
 }
 
@@ -20,22 +21,27 @@ async function begin(page: Page) {
 
 async function next(page: Page, index: number) {
   const response = page.waitForResponse((r) => r.url().endsWith('/exam/submitAnswer') && r.request().method() === 'POST')
-  await page.getByRole('button', { name: index === 6 ? '提交并完成' : '下一题', exact: true }).click()
+  await page.getByRole('button', { name: index === 6 ? /提交并完成$/ : /下一题$/ }).click()
   expect((await response).status()).toBe(200)
+  if (index < 6) await expect(page.locator('strong').first()).toHaveText(String(index + 1))
 }
 
 test('真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复', async ({ page }) => {
   await authenticate(page, '13800001001')
   await page.getByRole('button', { name: '退出', exact: true }).click()
   await page.getByRole('button', { name: '确认退出', exact: true }).click()
-  await expect(page).toHaveURL(/\/login$/)
+  await expect(page).toHaveURL(/\/login(?:\?|$)/)
   await authenticate(page, '13800001001', '登录')
   await begin(page)
   for (let index = 1; index <= 6; index++) {
     if (index === 2 || index === 5) {
       await expect(page.getByRole('checkbox').first()).toBeVisible()
-      await page.getByRole('checkbox').nth(0).check()
-      await page.getByRole('checkbox').nth(2).check()
+      const optionA = page.getByRole('checkbox', { name: 'A', exact: true })
+      const optionC = page.getByRole('checkbox', { name: 'C', exact: true })
+      await optionA.click()
+      await expect(optionA).toBeChecked()
+      await optionC.click()
+      await expect(optionC).toBeChecked()
     } else {
       await page.getByRole('radio').nth(({ 1: 2, 3: 0, 4: 1, 6: 3 } as Record<number, number>)[index]).check()
     }
@@ -44,7 +50,8 @@ test('真实页面：注册、退出、登录、单选多选、正常交卷和�
   await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible()
   await page.reload()
   await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible()
-  await page.screenshot({ path: '.runtime/completed.png' })
+  await expect(page.getByRole('heading', { name: '提交成功' }).locator('../..')).toHaveCSS('opacity', '1')
+  await page.screenshot({ path: '.runtime/completed.png', animations: 'disabled' })
 })
 
 test('真实页面：刷新续考、倒计时不重置、提前交卷', async ({ page }) => {
@@ -63,7 +70,7 @@ test('真实页面：刷新续考、倒计时不重置、提前交卷', async ({
   const q = (await resumed.json()).data.currentQuestion
   expect(q.questionIndex).toBe(2)
   expect(q.remainingSeconds).toBeLessThan(8)
-  await page.getByRole('button', { name: '交卷', exact: true }).click()
+  await page.getByRole('button', { name: /交\s*卷$/ }).click()
   await page.getByRole('button', { name: '确认交卷', exact: true }).click()
   await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible()
   const forbidden = await page.request.post(prefix + '/exam/submitAnswer', {
@@ -92,11 +99,11 @@ test('真实页面：提交响应丢失后重试不重复推进', async ({ page 
     await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 503, message: '测试：响应丢失' }) })
   }, { times: 1 })
   await page.getByRole('radio').first().check()
-  await page.getByRole('button', { name: '下一题', exact: true }).click()
+  await page.getByRole('button', { name: /下一题$/ }).click()
   await page.getByRole('button', { name: '重试提交', exact: true }).click()
   await expect(page.getByRole('checkbox').first()).toBeVisible()
   await expect(page.getByRole('radio')).toHaveCount(0)
-  await page.screenshot({ path: '.runtime/answering.png' })
+  await page.screenshot({ path: '.runtime/answering.png', animations: 'disabled' })
 })
 
 test('真实页面：两个独立用户进度互不影响', async ({ browser }) => {
