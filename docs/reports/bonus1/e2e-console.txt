@@ -1,0 +1,14 @@
+
+Running 7 tests using 1 worker
+
+(node:6996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\e2e-built\exam.spec.mjs:86:1 › 真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复 (12.2s)
+  ok 2 tests\e2e-built\exam.spec.mjs:113:1 › 真实页面：刷新续考、倒计时不重置、提前交卷 (7.5s)
+  ok 3 tests\e2e-built\exam.spec.mjs:137:1 › 真实页面：未选答案超时自动切题 (11.8s)
+  ok 4 tests\e2e-built\exam.spec.mjs:147:1 › 真实页面：提交响应丢失后重试不重复推进 (1.8s)
+  ok 5 tests\e2e-built\exam.spec.mjs:161:1 › 真实页面：两个独立用户进度互不影响 (3.9s)
+  ok 6 tests\e2e-built\exam.spec.mjs:184:1 › 隔离防护：HTTP 客户端拒绝开发服务地址 (274ms)
+  ok 7 tests\e2e-built\exam.spec.mjs:188:1 › 真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录 (3.5s)
+
+  7 passed (41.8s)

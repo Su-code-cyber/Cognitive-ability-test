@@ -1,0 +1,176 @@
+
+Running 7 tests using 1 worker
+
+(node:23852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 tests\e2e-built\exam.spec.mjs:86:1 › 真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复 (19.0s)
+(node:23432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 tests\e2e-built\exam.spec.mjs:113:1 › 真实页面：刷新续考、倒计时不重置、提前交卷 (14.0s)
+(node:4528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 tests\e2e-built\exam.spec.mjs:137:1 › 真实页面：未选答案超时自动切题 (14.4s)
+(node:22772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  4 tests\e2e-built\exam.spec.mjs:147:1 › 真实页面：提交响应丢失后重试不重复推进 (18.4s)
+(node:26580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  5 tests\e2e-built\exam.spec.mjs:161:1 › 真实页面：两个独立用户进度互不影响 (13.9s)
+(node:25772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 6 tests\e2e-built\exam.spec.mjs:184:1 › 隔离防护：HTTP 客户端拒绝开发服务地址 (197ms)
+  x  7 tests\e2e-built\exam.spec.mjs:188:1 › 真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录 (13.8s)
+
+
+  1) tests\e2e-built\exam.spec.mjs:86:1 › 真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复 ────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+        - waiting for "http://127.0.0.1:28028/login" navigation to finish...
+        - navigated to "http://127.0.0.1:28028/login"
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:87:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e-built\exam.spec.mjs:113:1 › 真实页面：刷新续考、倒计时不重置、提前交卷 ───────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:114:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：刷新续考、倒计时不重置、提前交卷\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：刷新续考、倒计时不重置、提前交卷\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：刷新续考、倒计时不重置、提前交卷\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：刷新续考、倒计时不重置、提前交卷\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e-built\exam.spec.mjs:137:1 › 真实页面：未选答案超时自动切题 ─────────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:138:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：未选答案超时自动切题\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：未选答案超时自动切题\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：未选答案超时自动切题\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：未选答案超时自动切题\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests\e2e-built\exam.spec.mjs:147:1 › 真实页面：提交响应丢失后重试不重复推进 ─────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:148:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：提交响应丢失后重试不重复推进\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：提交响应丢失后重试不重复推进\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：提交响应丢失后重试不重复推进\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：提交响应丢失后重试不重复推进\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests\e2e-built\exam.spec.mjs:161:1 › 真实页面：两个独立用户进度互不影响 ───────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:167:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：两个独立用户进度互不影响\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：两个独立用户进度互不影响\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：两个独立用户进度互不影响\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：两个独立用户进度互不影响\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：两个独立用户进度互不影响\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests\e2e-built\exam.spec.mjs:188:1 › 真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录 ───────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('radiogroup').getByText('注册', { exact: true })
+
+        at authenticate (D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:69:110)
+        at D:\Blue\intern-written-test\.runtime\node_modules\test-runs\e2e-HukwNg\source\tests\e2e-built\exam.spec.mjs:189:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：访问-Cookie-丢失时自动刷新，缓存身份不能绕过登录\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\artifacts\exam-真实页面：访问-Cookie-丢失时自动刷新，缓存身份不能绕过登录\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\artifacts\exam-真实页面：访问-Cookie-丢失时自动刷新，缓存身份不能绕过登录\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\artifacts\exam-真实页面：访问-Cookie-丢失时自动刷新，缓存身份不能绕过登录\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests\e2e-built\exam.spec.mjs:86:1 › 真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复 ─────────────────────────────
+    tests\e2e-built\exam.spec.mjs:113:1 › 真实页面：刷新续考、倒计时不重置、提前交卷 ────────────────────────────────────
+    tests\e2e-built\exam.spec.mjs:137:1 › 真实页面：未选答案超时自动切题 ──────────────────────────────────────────
+    tests\e2e-built\exam.spec.mjs:147:1 › 真实页面：提交响应丢失后重试不重复推进 ──────────────────────────────────────
+    tests\e2e-built\exam.spec.mjs:161:1 › 真实页面：两个独立用户进度互不影响 ────────────────────────────────────────
+    tests\e2e-built\exam.spec.mjs:188:1 › 真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录 ────────────────────────
+  1 passed (1.6m)

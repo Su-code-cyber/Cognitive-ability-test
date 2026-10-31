@@ -68,6 +68,14 @@ export function loadRun() {
   return run
 }
 
+export function sourceCopyAllowed(filename) {
+  const name = path.basename(filename)
+  return !['data', 'logs', '__pycache__', '.pytest_cache'].includes(name)
+    && !(name.startsWith('.env') && name !== '.env.example')
+    && !/\.(?:pyc|sqlite3?|db)(?:-(?:wal|shm|journal))?$/i.test(name)
+    && !name.endsWith('.log')
+}
+
 export function snapshot(run, browser = false) {
   mkdirSync(run.source)
   const paths = ['backend', 'pytest.ini']
@@ -75,7 +83,7 @@ export function snapshot(run, browser = false) {
   for (const relative of paths) {
     cpSync(path.join(ROOT, relative), path.join(run.source, relative), {
       recursive: true,
-      filter: (file) => !['data', '__pycache__', '.pytest_cache'].includes(path.basename(file)) && !file.endsWith('.pyc'),
+      filter: (file) => sourceCopyAllowed(file) && !lstatSync(file).isSymbolicLink(),
     })
   }
   if (browser) {

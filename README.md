@@ -6,6 +6,7 @@ React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需�
 
 - [设计与接口约定](docs/design.md)
 - [测试策略、场景和验收方法](docs/testing.md)
+- [加分题1逐项交付与活动用户隔离说明](docs/bonus1.md)
 - [实际验证记录](docs/verification.md)
 - [AI 使用说明与完整记录交付提醒](docs/ai-usage.md)
 - [原始笔试要求](笔试题说明.md)
@@ -104,17 +105,29 @@ npm run --silent db:results -- --all --json
 
 ## 检查与自动化测试
 
+依赖和浏览器首次安装应在开始服务用户之前完成；测试期间不要重装依赖、修改业务源码或重启用户服务。依赖已准备好后，可在用户作答期间单独运行隔离测试：
+
 ```powershell
-npm run lint
-npm run build
+node scripts/test-all.mjs
+```
+
+也可以单独执行 API 或浏览器测试；首次准备测试浏览器时使用安装命令：
+
+```powershell
 npm run test:api
 npm run test:e2e:install
 npm run test:e2e
 ```
 
-`test:api` 使用真实 SQLite 文件验证接口和数据库不变量，并实际停止、重启一个 HTTP 后端进程。`test:e2e` 自动启动测试后端（18003）和前端（15173），使用无界面 Chromium 操作真实页面。端口已占用时会失败，不复用其他服务。
+`test:api` 使用真实 SQLite 文件验证接口和数据库不变量，只停止、重启测试自己创建的 HTTP 进程。`test:e2e` 在动态回环端口启动独立前后端，以无界面 Chromium 操作真实页面，明确排除开发端口 5173/8003，不复用已有服务。
 
-报告位于 `.runtime/backend-results.xml`、`.runtime/browser-results.xml`、`.runtime/playwright-report/index.html`。测试数据分别位于 `.runtime/pytest-*` 和 `.runtime/e2e-*`，不需要清理开发数据库。停止测试后可运行 `npm run test:clean` 清理测试目录和报告；保留浏览器、依赖缓存和开发数据。详见测试文档。
+每轮的源码快照、数据库、浏览器资料、缓存和报告都在 `.runtime/node_modules/test-runs/<运行ID>/`。`node_modules` 这一层用于避开开发 Vite 的文件监听，避免测试创建的配置和 HTML 导致正在考试的页面热更新。数据库和浏览器请求还受本轮目录、地址及服务身份守卫限制，配置缺失时直接失败，不回退到开发库。
+
+最新运行位置见 `.runtime/latest-api.json`、`.runtime/latest-e2e.json`；完整验收汇总见 `.runtime/latest-validation.json`。每轮 `reports/` 包含 JUnit、日志及浏览器 HTML 报告。成功运行后执行 `.\.venv\Scripts\python.exe -B scripts/archive-test-reports.py`，将不含数据库或 Cookie 的交付证据保存到 `docs/reports/bonus1/`。
+
+`npm run test:clean -- --run 运行ID` 只清理指定的已结束自有测试，不带参数时清理所有已结束自有测试。活动测试、未知目录、开发数据、浏览器安装和依赖均保留；测试运行时清理会被互斥锁拒绝。详见 [加分题1说明](docs/bonus1.md)。
+
+部署前还可运行 `npm run lint`、`npm run build` 做前端静态检查和构建；这些不属于活动用户期间的隔离业务测试。
 
 ## 构建与部署
 

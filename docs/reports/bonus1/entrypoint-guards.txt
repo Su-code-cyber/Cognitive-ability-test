@@ -1,0 +1,3 @@
+Browser config override: rejected (exit 1)
+Direct unguarded pytest: rejected (exit 4)
+Direct unguarded Playwright: rejected (exit 1)

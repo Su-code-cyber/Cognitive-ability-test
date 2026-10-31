@@ -1,0 +1,4 @@
+Error: Stripping types is currently unsupported for files under node_modules, for "file:///D:/Blue/intern-written-test/.runtime/node_modules/test-runs/e2e-7ph8e3/source/tests/e2e/exam.spec.ts"
+    at eval (<anonymous>:1:1)
+Error: No tests found
+

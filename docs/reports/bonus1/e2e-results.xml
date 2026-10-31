@@ -1,0 +1,18 @@
+<testsuites id="" name="" tests="7" failures="0" skipped="0" errors="0" time="41.780814">
+<testsuite name="exam.spec.mjs" timestamp="2026-10-31T12:23:19.967Z" hostname="" tests="7" failures="0" skipped="0" time="40.985" errors="0">
+<testcase name="真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复" classname="exam.spec.mjs" time="12.153">
+</testcase>
+<testcase name="真实页面：刷新续考、倒计时不重置、提前交卷" classname="exam.spec.mjs" time="7.498">
+</testcase>
+<testcase name="真实页面：未选答案超时自动切题" classname="exam.spec.mjs" time="11.839">
+</testcase>
+<testcase name="真实页面：提交响应丢失后重试不重复推进" classname="exam.spec.mjs" time="1.782">
+</testcase>
+<testcase name="真实页面：两个独立用户进度互不影响" classname="exam.spec.mjs" time="3.931">
+</testcase>
+<testcase name="隔离防护：HTTP 客户端拒绝开发服务地址" classname="exam.spec.mjs" time="0.274">
+</testcase>
+<testcase name="真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录" classname="exam.spec.mjs" time="3.508">
+</testcase>
+</testsuite>
+</testsuites>

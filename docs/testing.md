@@ -2,6 +2,8 @@
 
 选择加分题 1：AI 辅助测试策略与自动化测试。重点验证真实业务行为和数据不变量，不以覆盖率数字或固定成功响应代替测试。
 
+完整逐项交付、运行与清理约束见 [bonus1.md](bonus1.md)。有人作答时，只运行隔离入口，不在开发服务上执行下方手工注册、重启或清理操作。
+
 ## 分层与风险
 
 | 优先级 | 风险 | 测试方式 |
@@ -15,30 +17,29 @@
 | P1 | 密码泄露、Cookie 失效处理错误 | 哈希与加盐检查、凭据摘要检查、刷新轮换、旧凭据失效、退出后重放 |
 | P1 | 网络响应丢失导致误操作 | 浏览器让服务端保存后返回模拟 503，再点击重试，验证只推进一次 |
 | P2 | 参数和初始化错误 | 非法手机号/密码/选项/题号、分页、重复种子与题库变更快照 |
+| P0 | 自动化测试误伤活动用户 | 运行目录与数据库守卫、开发地址拒绝、服务身份确认、文件监听隔离、运行期间清理拒绝及旁路模拟用户续考 |
 
 接口层使用 pytest + FastAPI TestClient，访问真实文件数据库，不 mock 数据库。通过工厂注入测试时钟仅控制时间，HTTP 接口不提供修改时间入口。浏览器层用 Playwright Chromium，通过实际 Vite 代理访问实际 FastAPI 服务。
 
 ## 环境与命令
 
-先按 README 安装依赖，并在项目根目录执行：
+先按 README 在开始服务用户前安装依赖和测试浏览器。依赖已就绪时，在项目根目录执行：
 
 ```powershell
-npm run test:api
-npm run test:e2e:install
-npm run test:e2e
-npm run lint
-npm run build
+node scripts/test-all.mjs
 ```
 
-测试命令会把 TEMP、TMP、TMPDIR、Python 字节码策略和浏览器目录限制在项目内。API 测试每次使用 `.runtime/pytest-*` 下的新目录；浏览器测试每次使用 `.runtime/e2e-*` 下的新数据库，单题时限 8 秒。不接触 `backend/data/exam.sqlite3`。
+也可单独运行 `npm run test:api` 或 `npm run test:e2e`。命令将临时文件、数据库、浏览器资料和缓存限定于本轮 `.runtime/node_modules/test-runs/<运行ID>/`，不接触 `backend/data/exam.sqlite3`。浏览器业务测试的单题时限为 8 秒，默认开发数据仍是 60 秒。
 
-浏览器服务端口为 18003 和 15173，测试失败时也由 Playwright 关闭它启动的服务，不复用开发服务。API 进程重启测试使用系统分配的空闲回环端口，客户端关闭环境代理。
+测试服务使用系统动态分配的回环端口，排除 5173/8003。启动器持有自己的子进程句柄，只关闭自己创建的进程，不复用或关闭开发服务；无法确认退出时保留锁并报错。API 重启测试也使用自建进程及独立端口，关闭环境代理，并验证本轮服务身份。
 
-`npm run test:api` 输出 JUnit 报告到 `.runtime/backend-results.xml`；浏览器生成 `.runtime/browser-results.xml` 和 `.runtime/playwright-report/index.html`。浏览器失败截图及 trace 位于 `.runtime/playwright-results`。测试默认不重试，避免把不稳定问题隐藏为成功。
+每轮 `reports/api.xml` 或 `reports/browser.xml` 为 JUnit，`reports/html/index.html` 为浏览器 HTML 报告，`artifacts/` 保存截图及失败 trace。最新运行目录由 `.runtime/latest-api.json`、`.runtime/latest-e2e.json` 给出。测试单 worker、顺序执行、不自动重试，避免把不稳定问题隐藏为成功。完整运行成功后可执行 `.\.venv\Scripts\python.exe -B scripts/archive-test-reports.py` 归档交付证据。
 
-停止测试后执行 `npm run test:clean`，仅清理脚本指定的项目内测试目录和报告，保留开发数据、浏览器、虚拟环境和依赖缓存。如需保存报告，应先复制到交付目录。
+先归档，再执行 `npm run test:clean -- --run 运行ID` 清理指定的已结束自有测试目录。默认不带参数时仅清理带本工具标记的已结束运行；旧式未知目录、活动锁、开发数据、浏览器、虚拟环境和依赖缓存均保留。另一个测试执行期间清理会直接失败。
 
 ## 手工验收清单
+
+以下步骤只用于隔离测试实例或评审新环境，不能针对正在服务用户的开发实例操作。自动化入口已独立实现这些流程，无需为了验收去停正在使用的后端。
 
 1. 从新检出目录安装依赖并运行数据库初始化、后端和前端，不预置用户。
 2. 新注册测试号码 A（11位且符合页面规则），退出后用错误和正确密码分别登录；重复注册 A 应拒绝。

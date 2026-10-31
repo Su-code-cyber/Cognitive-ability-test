@@ -1,0 +1,36 @@
+{
+  "startedAt": "2026-10-31T12:22:40.924Z",
+  "finishedAt": "2026-10-31T12:24:02.752Z",
+  "suites": [
+    {
+      "kind": "api",
+      "runId": "api-BC5eMN",
+      "gitCommit": "ce210f3b18b1568bfb1681323e04583dfc5526a9",
+      "tests": 47.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 32.285
+    },
+    {
+      "kind": "e2e",
+      "runId": "e2e-CvuPu2",
+      "gitCommit": "ce210f3b18b1568bfb1681323e04583dfc5526a9",
+      "tests": 7.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 40.985
+    }
+  ],
+  "networkAudit": {
+    "allowedOrigins": [
+      "http://127.0.0.1:14176",
+      "http://127.0.0.1:14177",
+      "null"
+    ],
+    "recordedRequests": 739,
+    "blockedAttempts": 2,
+    "allowedRequestsOutsideRun": 0
+  }
+}
