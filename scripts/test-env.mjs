@@ -192,6 +192,7 @@ import tailwindcss from ${imports('@tailwindcss/vite')};
 export default {
   root: ${JSON.stringify(run.source)}, envDir: ${JSON.stringify(path.join(run.directory, 'empty-env'))},
   cacheDir: ${JSON.stringify(path.join(run.directory, 'vite-cache'))},
+  optimizeDeps: {noDiscovery:true,include:['react','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime','react-router-dom','antd','antd/locale/zh_CN','@ant-design/icons','lucide-react','dompurify']},
   plugins: [react(), tailwindcss(), {name:'isolated-test-identity', configureServer(server) {
     server.middlewares.use('/__exam_test_run', (_req,res) => {res.setHeader('X-Exam-Test-Run',${JSON.stringify(run.nonce)});res.end('isolated');});
   }}],
