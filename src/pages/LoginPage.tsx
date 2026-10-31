@@ -240,7 +240,7 @@ export default function LoginPage() {
                 validateTrigger="onBlur"
                 rules={[
                   { required: true, message: '请输入手机号' },
-                  { pattern: PHONE_REGEX, message: '请输入11位有效手机号' },
+                  { pattern: PHONE_REGEX, message: '手机号须为11位数字，以1开头，第二位为3～9' },
                 ]}
                 className="!mb-0"
               >
