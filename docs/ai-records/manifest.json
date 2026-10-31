@@ -1,0 +1,70 @@
+{
+  "exportedAtUtc": "2026-10-31T12:34:19.509864+00:00",
+  "exports": [
+    {
+      "file": "rollout-2026-10-30T22-48-40-01a18d48-ca95-7aa0-ab74-8527c7c9265a.visible.jsonl",
+      "sourceFile": "rollout-2026-10-30T22-48-40-01a18d48-ca95-7aa0-ab74-8527c7c9265a.jsonl",
+      "sourceSnapshotSha256": "fb6fe47222548581d33539a829d9d45fe7c9764602b2d67766af96f23485ef55",
+      "metadata": {
+        "id": "01a18d48-ca95-7aa0-ab74-8527c7c9265a",
+        "cwd": "D:\\Blue",
+        "source": "vscode",
+        "cli_version": "0.166.0-alpha.5.1",
+        "model_provider": "openai"
+      },
+      "modelsRecordedByHost": [
+        "gpt-6.1-sol"
+      ],
+      "visibleRecords": 6,
+      "firstTimestamp": "2026-10-30T14:50:14.239Z",
+      "lastTimestamp": "2026-10-30T14:50:21.758Z"
+    },
+    {
+      "file": "rollout-2026-10-30T22-53-33-01a18d48-ca95-7aa0-ab74-8527c7c9265a_01a18d4d-4599-7c61-8fc8-8b2862b5dcf1.visible.jsonl",
+      "sourceFile": "rollout-2026-10-30T22-53-33-01a18d48-ca95-7aa0-ab74-8527c7c9265a_01a18d4d-4599-7c61-8fc8-8b2862b5dcf1.jsonl",
+      "sourceSnapshotSha256": "a5e0b8802e8782f90c8d241c5aebc7d673fee68b90791a85984101e4edf66e04",
+      "metadata": {
+        "id": "01a18d48-ca95-7aa0-ab74-8527c7c9265a",
+        "cwd": "D:\\Blue",
+        "source": "vscode",
+        "cli_version": "0.166.0-alpha.5.1",
+        "model_provider": "openai"
+      },
+      "modelsRecordedByHost": [
+        "gpt-6.1-sol"
+      ],
+      "visibleRecords": 182,
+      "firstTimestamp": "2026-10-30T14:53:38.670Z",
+      "lastTimestamp": "2026-10-31T10:28:04.435Z"
+    },
+    {
+      "file": "rollout-2026-10-31T18-28-09-01a18d48-ca95-7aa0-ab74-8527c7c9265a_01a19180-a3db-76c3-b2e4-10b4a9509df9.visible.jsonl",
+      "sourceFile": "rollout-2026-10-31T18-28-09-01a18d48-ca95-7aa0-ab74-8527c7c9265a_01a19180-a3db-76c3-b2e4-10b4a9509df9.jsonl",
+      "sourceSnapshotSha256": "b3a52ebc6c03655e62899caad9ab412c6e1bc91be8610d001d5930529b2c1ff1",
+      "metadata": {
+        "id": "01a18d48-ca95-7aa0-ab74-8527c7c9265a",
+        "cwd": "D:\\Blue",
+        "source": "vscode",
+        "cli_version": "0.166.0-alpha.5.1",
+        "model_provider": "openai"
+      },
+      "modelsRecordedByHost": [
+        "gpt-6.1-sol"
+      ],
+      "visibleRecords": 116,
+      "firstTimestamp": "2026-10-31T10:28:11.443Z",
+      "lastTimestamp": "2026-10-31T12:34:16.937Z"
+    }
+  ],
+  "scope": "Complete available user-visible response items through each recorded cutoff: user inputs, assistant commentary/final replies, tool calls and tool outputs. No excerpts or summaries replace those records.",
+  "excluded": [
+    "system/developer instructions",
+    "internal reasoning and analysis",
+    "token accounting and duplicate host events"
+  ],
+  "redactions": [
+    "phone numbers consistently pseudonymized",
+    "email addresses redacted"
+  ],
+  "limitations": "This is a snapshot of an ongoing chat. Messages after the lastTimestamp, including a later final reply, require a refreshed export."
+}
