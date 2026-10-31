@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "dev:api": "node scripts/backend.mjs serve",
     "db:init": "node scripts/backend.mjs init",
+    "db:results": "node scripts/backend.mjs results",
     "test:api": "node scripts/backend.mjs test",
     "test:e2e": "node scripts/e2e.mjs",
     "test:e2e:install": "node scripts/e2e.mjs --install",
