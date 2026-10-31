@@ -6,7 +6,8 @@ const run = loadRun()
 if (run.kind !== 'e2e' || !run.uiOrigin || !run.apiOrigin) throw new Error('Browser tests require an owned isolated run')
 
 export default defineConfig({
-  testDir: path.join(run.source, 'tests/e2e'),
+  testDir: path.join(run.source, 'tests/e2e-built'),
+  testMatch: '**/*.spec.mjs',
   fullyParallel: false,
   workers: 1,
   retries: 0,

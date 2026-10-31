@@ -3,6 +3,7 @@ import path from 'node:path'
 import { createRun, finishRun, freePort, pythonPath, ROOT, saveRun, snapshot, startChild, stopChild, suiteLock, testEnvironment, waitForOwnedServer, writeViteConfig } from './test-env.mjs'
 
 export async function runTests(kind, args = []) {
+  if (args.length) throw new Error('Isolation options cannot be overridden; run the documented standard test command without extra arguments')
   const release = suiteLock()
   const children = []
   let run, exitCode = 1, interrupted = false, stopPromise
@@ -26,11 +27,9 @@ export async function runTests(kind, args = []) {
       return handle
     }
     if (kind === 'api') {
-      if (args.length) throw new Error('API tests use fixed isolation options; use the documented command without overriding pytest paths')
       const handle = add('pytest', pythonPath(), ['-B', '-m', 'pytest', '--basetemp', path.join(run.directory, 'cases'), '-o', `cache_dir=${path.join(run.directory, 'pytest-cache')}`, '--junitxml', path.join(run.directory, 'reports', 'api.xml')])
       exitCode = (await handle.exited).code
     } else if (kind === 'e2e') {
-      if (args.some((arg) => /config|project|ui|headed|output|workers|debug|base-url/.test(arg))) throw new Error('Do not override isolated browser configuration; run the standard test command')
       run.apiPort = await freePort()
       run.uiPort = await freePort()
       while (run.uiPort === run.apiPort) run.uiPort = await freePort()

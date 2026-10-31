@@ -78,6 +78,16 @@ export function snapshot(run, browser = false) {
       filter: (file) => !['data', '__pycache__', '.pytest_cache'].includes(path.basename(file)) && !file.endsWith('.pyc'),
     })
   }
+  if (browser) {
+    // Node/Playwright deliberately skip TS transformation under node_modules.
+    // Compile only the copied tests to ESM, keeping all generated files watcher-isolated.
+    const require = createRequire(path.join(ROOT, 'package.json'))
+    const { buildSync } = require('esbuild')
+    const testDirectory = path.join(run.source, 'tests/e2e')
+    const entryPoints = readdirSync(testDirectory).filter((name) => name.endsWith('.spec.ts')).map((name) => path.join(testDirectory, name))
+    buildSync({ entryPoints, outdir: path.join(run.source, 'tests/e2e-built'), outExtension: { '.js': '.mjs' },
+      bundle: true, platform: 'node', format: 'esm', packages: 'external', sourcemap: 'external' })
+  }
   // No .env, user databases, browser profiles, build output or dependency caches are copied.
   const files = {}
   function walk(directory) {
