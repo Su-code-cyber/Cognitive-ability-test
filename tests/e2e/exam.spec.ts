@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { test, expect, isolatedContext } from './fixtures'
 
 const prefix = '/api/blue/bluecommonservice'
 const password = 'Local-test-123!'
@@ -26,7 +27,7 @@ async function next(page: Page, index: number) {
   if (index < 6) await expect(page.locator('strong').first()).toHaveText(String(index + 1))
 }
 
-test('真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复', async ({ page }) => {
+test('真实页面：注册、退出、登录、单选多选、正常交卷和完成页恢复', async ({ page }, testInfo) => {
   await authenticate(page, '13800001001')
   await page.getByRole('button', { name: '退出', exact: true }).click()
   await page.getByRole('button', { name: '确认退出', exact: true }).click()
@@ -51,7 +52,7 @@ test('真实页面：注册、退出、登录、单选多选、正常交卷和�
   await page.reload()
   await expect(page.getByRole('heading', { name: '提交成功' })).toBeVisible()
   await expect(page.getByRole('heading', { name: '提交成功' }).locator('../..')).toHaveCSS('opacity', '1')
-  await page.screenshot({ path: '.runtime/completed.png', animations: 'disabled' })
+  await page.screenshot({ path: testInfo.outputPath('completed.png'), animations: 'disabled' })
 })
 
 test('真实页面：刷新续考、倒计时不重置、提前交卷', async ({ page }) => {
@@ -90,7 +91,7 @@ test('真实页面：未选答案超时自动切题', async ({ page }) => {
   await expect(page.getByRole('checkbox').first()).toBeVisible()
 })
 
-test('真实页面：提交响应丢失后重试不重复推进', async ({ page }) => {
+test('真实页面：提交响应丢失后重试不重复推进', async ({ page }, testInfo) => {
   await authenticate(page, '13800001004')
   await begin(page)
   await page.route('**/exam/submitAnswer', async (route) => {
@@ -103,12 +104,12 @@ test('真实页面：提交响应丢失后重试不重复推进', async ({ page 
   await page.getByRole('button', { name: '重试提交', exact: true }).click()
   await expect(page.getByRole('checkbox').first()).toBeVisible()
   await expect(page.getByRole('radio')).toHaveCount(0)
-  await page.screenshot({ path: '.runtime/answering.png', animations: 'disabled' })
+  await page.screenshot({ path: testInfo.outputPath('answering.png'), animations: 'disabled' })
 })
 
 test('真实页面：两个独立用户进度互不影响', async ({ browser }) => {
-  const a = await browser.newContext()
-  const b = await browser.newContext()
+  const a = await isolatedContext(browser)
+  const b = await isolatedContext(browser)
   try {
     const pageA = await a.newPage()
     const pageB = await b.newPage()
@@ -128,6 +129,11 @@ test('真实页面：两个独立用户进度互不影响', async ({ browser }) 
     await a.close()
     await b.close()
   }
+})
+
+test('隔离防护：HTTP 客户端拒绝开发服务地址', async ({ page }) => {
+  await expect(page.request.get('http://127.0.0.1:8003/health')).rejects.toThrow('Blocked request outside this isolated test run')
+  await expect(page.request.get('http://localhost:5173/')).rejects.toThrow('Blocked request outside this isolated test run')
 })
 
 test('真实页面：访问 Cookie 丢失时自动刷新，缓存身份不能绕过登录', async ({ page, context }) => {

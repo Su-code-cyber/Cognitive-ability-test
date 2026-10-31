@@ -1,11 +1,32 @@
 import time
+import sqlite3
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from backend.config import Settings
 from backend.main import PREFIX, create_app
+from backend.tests.isolation import IsolationError, install_sqlite_guard, require_run
+
+
+def pytest_configure(config):
+    try:
+        run = require_run()
+        directory = Path(run["directory"])
+        if not config.option.basetemp or Path(config.option.basetemp).resolve() != directory / "cases":
+            raise IsolationError("pytest 临时数据库目录必须由隔离启动器指定")
+        if Path(config.getini("cache_dir")).resolve() != directory / "pytest-cache":
+            raise IsolationError("pytest 缓存必须位于本轮测试目录")
+        config._exam_original_connect = install_sqlite_guard()
+    except (IsolationError, OSError, ValueError, KeyError) as exc:
+        raise pytest.UsageError(str(exc)) from exc
+
+
+def pytest_unconfigure(config):
+    if hasattr(config, "_exam_original_connect"):
+        sqlite3.connect = config._exam_original_connect
 
 
 @dataclass

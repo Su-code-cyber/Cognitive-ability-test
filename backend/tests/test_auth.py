@@ -75,9 +75,9 @@ def test_cross_origin_and_form_requests_rejected(client, app):
     assert response.status_code == 403
     response = client.post(PREFIX + "/auth/register", headers={"Content-Type": "application/x-www-form-urlencoded"}, content="phone=13800000001&password=Local-test-123!")
     assert response.status_code == 415
-    response = client.post(PREFIX + "/auth/register", headers={"Origin": "http://localhost:5173"}, json={"phone": "13800000001", "password": "Local-test-123!"})
+    response = client.post(PREFIX + "/auth/register", headers={"Origin": "http://testclient.local"}, json={"phone": "13800000001", "password": "Local-test-123!"})
     assert response.status_code == 200
-    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+    assert response.headers["access-control-allow-origin"] == "http://testclient.local"
     assert response.headers["access-control-allow-credentials"] == "true"
 
 

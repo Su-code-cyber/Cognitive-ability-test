@@ -18,7 +18,7 @@ def server(database, port, log):
     env = {**os.environ, "EXAM_DATABASE_PATH": str(database), "PYTHONDONTWRITEBYTECODE": "1"}
     with log.open("ab") as output:
         process = subprocess.Popen(
-            [sys.executable, "-B", "-m", "uvicorn", "backend.main:create_app", "--factory", "--host", "127.0.0.1", "--port", str(port)],
+            [sys.executable, "-B", "-m", "uvicorn", "backend.tests.isolated_server:create_test_app", "--factory", "--host", "127.0.0.1", "--port", str(port)],
             cwd=root, env=env, stdout=output, stderr=output,
         )
         try:
@@ -28,7 +28,9 @@ def server(database, port, log):
                     if process.poll() is not None:
                         raise AssertionError(log.read_text(encoding="utf-8", errors="replace"))
                     try:
-                        if probe.get("/health").status_code == 200:
+                        response = probe.get("/health")
+                        if response.status_code == 200:
+                            assert response.headers.get("x-exam-test-run") == env["EXAM_TEST_NONCE"], "Refusing an unowned server"
                             break
                     except httpx.TransportError:
                         pass
