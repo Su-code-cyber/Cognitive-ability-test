@@ -38,7 +38,7 @@ def main():
     denied = sorted(name for name in names if not safe_source(name))
     if denied:
         raise SystemExit("Refusing runtime/private paths: " + ", ".join(denied))
-    required = {"DELIVERY.md", "README.md", "笔试题说明.md", "package-lock.json", "backend/requirements.lock.txt", "backend/migrations/001_initial.sql", "backend/migrations/002_connected_timer.sql", "backend/seed.json", "docs/acceptance-matrix.md", "docs/manual-test-results.md", "docs/limitations.md", "docs/ai-records/manifest.json", "docs/reports/manual-video-manifest.json", "docs/reports/offline-timer/summary.json"}
+    required = {"DELIVERY.md", "README.md", "package-lock.json", "backend/requirements.lock.txt", "backend/migrations/001_initial.sql", "backend/migrations/002_connected_timer.sql", "backend/seed.json", "docs/acceptance-matrix.md", "docs/manual-test-results.md", "docs/limitations.md", "docs/ai-records/manifest.json", "docs/reports/manual-video-manifest.json", "docs/reports/offline-timer/summary.json"}
     if not required <= names:
         raise SystemExit("Missing delivery materials: " + ", ".join(sorted(required - names)))
     for directory in (ROOT / ".runtime", ROOT / ".runtime/node_modules", OUTPUT):

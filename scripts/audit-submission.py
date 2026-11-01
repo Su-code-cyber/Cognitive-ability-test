@@ -10,11 +10,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote
 
+from privacy_records import contains_withdrawn_image
+
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_BASE = "918d3bca35723edaaa554eaee78cb3241ce7a366"
+SOURCE_BASE = "fd37911128995780aee580141bc6a26eaee40085"
 CORE_PATHS = ["backend", "src", "tests", "pytest.ini", "package.json", "package-lock.json", "playwright.config.ts", "scripts/test-env.mjs", "scripts/run-tests.mjs", "scripts/test-all.mjs"]
-FORMAL_DOCS = ["README.md", "DELIVERY.md", "SUBMISSION_CHECKLIST.md", *[f"docs/{name}.md" for name in ("acceptance-matrix", "manual-test-results", "limitations", "bonus1", "testing", "design", "verification", "offline-timer", "ai-usage", "deployment-20261101")], "docs/ai-records/README.md", "docs/ai-records/user-export/README.md"]
-REQUIRED = FORMAL_DOCS + ["笔试题说明.md", "笔试题说明.pdf", ".env.example", "backend/.env.example", "package-lock.json", "backend/requirements.lock.txt", "backend/main.py", "backend/db.py", "backend/migrations/001_initial.sql", "backend/migrations/002_connected_timer.sql", "backend/seed.json", "backend/tests/test_auth.py", "backend/tests/test_exams.py", "backend/tests/test_connected_timer.py", "backend/tests/test_restart.py", "backend/tests/test_isolation_guards.py", "tests/e2e/exam.spec.ts", "scripts/test-all.mjs", "scripts/clean-tests.mjs", "docs/ai-records/manifest.json", "docs/ai-records/user-export/source.json", "docs/ai-records/user-export/AI对话记录.md", "docs/reports/manual-video-manifest.json", "docs/reports/offline-timer/summary.json"]
+FORMAL_DOCS = ["README.md", "DELIVERY.md", *[f"docs/{name}.md" for name in ("acceptance-matrix", "manual-test-results", "limitations", "bonus1", "testing", "design", "verification", "offline-timer", "ai-usage", "deployment-20261101", "privacy-cleanup")], "docs/ai-records/README.md", "docs/ai-records/user-export/README.md"]
+REQUIRED = FORMAL_DOCS + [".env.example", "backend/.env.example", "package-lock.json", "backend/requirements.lock.txt", "backend/main.py", "backend/db.py", "backend/migrations/001_initial.sql", "backend/migrations/002_connected_timer.sql", "backend/seed.json", "backend/tests/test_auth.py", "backend/tests/test_exams.py", "backend/tests/test_connected_timer.py", "backend/tests/test_restart.py", "backend/tests/test_isolation_guards.py", "tests/e2e/exam.spec.ts", "scripts/test-all.mjs", "scripts/clean-tests.mjs", "docs/ai-records/manifest.json", "docs/ai-records/privacy-redactions.json", "docs/ai-records/user-export/source.json", "docs/ai-records/user-export/AI对话记录.md", "docs/reports/manual-video-manifest.json", "docs/reports/offline-timer/summary.json"]
 
 
 def require(condition, message):
@@ -49,6 +51,11 @@ def audit(allow_pending_report=False):
             destination = (file.parent / unquote(target.split("#")[0])).resolve()
             pending_report = allow_pending_report and destination == ROOT / "docs/submission-audit.json"
             require(destination.is_relative_to(ROOT) and (destination.exists() or pending_report), f"Broken material link: {name} -> {target}")
+            fragment = unquote(target.partition("#")[2])
+            if fragment and destination.exists() and destination.suffix.lower() == ".md":
+                headings = re.findall(r"^#{1,6}\s+(.+?)\s*#*\s*$", destination.read_text(encoding="utf-8"), re.MULTILINE)
+                anchors = {re.sub(r"[^\w\-\s]", "", heading.lower()).replace(" ", "-") for heading in headings}
+                require(fragment in anchors, f"Broken heading anchor: {name} -> {target}")
             link_count += 1
 
     evidence_count = 0
@@ -80,6 +87,8 @@ def audit(allow_pending_report=False):
 
     videos = json.loads((ROOT / "docs/reports/manual-video-manifest.json").read_text(encoding="utf-8"))["videos"]
     require(len(videos) == 7, "Expected seven original recordings")
+    current_video_paths = {path.relative_to(ROOT).as_posix() for path in (ROOT / "docs/reports").glob("*.mp4")}
+    require(current_video_paths == {item["path"] for item in videos}, "Video manifest differs from actual current filenames")
     for item in videos:
         file = (ROOT / item["path"]).resolve()
         require(file.is_relative_to(ROOT) and file.is_file() and file.stat().st_size == item["bytes"] and sha256(file) == item["sha256"], "Recording mismatch: " + item["path"])
@@ -89,12 +98,27 @@ def audit(allow_pending_report=False):
     file = (source_directory / native["file"]).resolve()
     require(file.is_relative_to(source_directory) and file.stat().st_size == native["bytes"] and sha256(file) == native["sha256"], "User-provided export was changed")
     ai_directory = ROOT / "docs/ai-records"
+    privacy = json.loads((ai_directory / "privacy-redactions.json").read_text(encoding="utf-8"))
+    blocked_images = set(privacy["imageSha256"])
+    for blob in privacy.get("withdrawnGitBlobIds", []):
+        exists = subprocess.run(["git", "cat-file", "-e", blob], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        require(exists.returncode != 0, "Withdrawn private video object still exists in submission Git storage")
+    history_objects = git("rev-list", "--objects", "--all").decode("utf-8").splitlines()
+    checked_blobs = set()
+    for item in history_objects:
+        object_id, _, name = item.partition(" ")
+        if object_id not in checked_blobs and name.startswith("docs/ai-records/") and name.endswith((".md", ".jsonl")):
+            checked_blobs.add(object_id)
+            content = git("cat-file", "blob", object_id).decode("utf-8")
+            require(not contains_withdrawn_image(content, blocked_images), "Withdrawn private screenshot remains in reachable Git history")
     ai = json.loads((ai_directory / "manifest.json").read_text(encoding="utf-8"))
     visible_count = 0
     for segment in ai["exports"]:
         file = (ai_directory / segment["file"]).resolve()
         require(file.is_relative_to(ai_directory) and file.is_file(), "AI segment outside expected directory")
         lines = file.read_text(encoding="utf-8").splitlines()
+        require(not contains_withdrawn_image("\n".join(lines), blocked_images), "Withdrawn private screenshot remains in visible records")
+        require(not contains_withdrawn_image(file.with_suffix(".md").read_text(encoding="utf-8"), blocked_images), "Withdrawn screenshot remains in Markdown records")
         require(len(lines) == segment["visibleRecords"] and file.with_suffix(".md").is_file(), "AI segment count/text counterpart mismatch")
         for line in lines:
             payload = json.loads(line)["payload"]
@@ -125,6 +149,11 @@ def audit(allow_pending_report=False):
         "userNativeExport": {"path": "docs/ai-records/user-export/AI对话记录.md", "bytes": native["bytes"], "sha256": native["sha256"], "byteExactAgainstReceipt": True},
         "visibleAIRecordSegments": len(ai["exports"]), "visibleAIRecords": visible_count, "visibleAIExportedAtUtc": ai["exportedAtUtc"],
         "runtimeDataExcludedFromSubmissionFiles": True,
+        "taskOriginalMdPdfRequired": False,
+        "currentVideoManifestMatchesFiles": True,
+        "withdrawnScreenshotDataAbsentFromCurrentRecords": True,
+        "withdrawnVideoObjectAbsentFromGitStorage": True,
+        "withdrawnScreenshotsAbsentFromReachableHistory": True,
         "pendingRequiredDeliveryActions": ["Publish this final branch to an authorized remote and supply its correct repository/branch URL and commit", "Confirm reviewer access; private repositories require the recruiting party's access arrangement"],
         "remotePublicationVerified": False, "reviewerAccessVerified": False,
         "sourceRemoteObservation": {"url": "https://github.com/Susim520/intern-written-test", "observedHeads": {"main": "6fcf17d6393526b9a1e036aa42eb53fc2f11f3ad"}, "method": "Read-only git ls-remote in this preparation session; not a claim that final results are published"},

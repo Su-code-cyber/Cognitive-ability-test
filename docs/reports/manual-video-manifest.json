@@ -1,6 +1,6 @@
 {
   "recordedBy": "User-provided manual test recordings",
-  "indexedAtUtc": "2026-11-01T09:48:31.343581+00:00",
+  "indexedAtUtc": "2026-11-01T12:46:47.322454+00:00",
   "reviewMethod": "Selected frames plus metadata; not a frame-by-frame or audio audit",
   "videos": [
     {
@@ -22,22 +22,22 @@
       "sha256": "42cef9eecdcebf5651f6a6f291d49dee16cc665cf71d3f3bfa690ec5dd773d22"
     },
     {
-      "path": "docs/reports/多用户同时作答.mp4",
-      "bytes": 80313296,
-      "durationSeconds": 78.570646,
+      "path": "docs/reports/多用户并行+刷新页面.mp4",
+      "bytes": 104161264,
+      "durationSeconds": 107.266633,
       "streams": [
         {
           "codec_name": "h264",
           "codec_type": "video",
           "width": 1918,
-          "height": 1004
+          "height": 948
         },
         {
           "codec_name": "aac",
           "codec_type": "audio"
         }
       ],
-      "sha256": "6c5ecc4cd4d3b6d39fedabef09444486a4bbfe3355947664fd937545791da9c2"
+      "sha256": "f0790590c4dbfc1471855d9234186b655f0aea6ad8f483311c64db2968119aaf"
     },
     {
       "path": "docs/reports/密码错误拒绝登录.mp4",
@@ -129,5 +129,6 @@
       ],
       "sha256": "5e2e08dad43a9852a12bfa2555d585ea3b4a4c4a16ecdf8af0d549ea58bbc3b5"
     }
-  ]
+  ],
+  "replacementNote": "The withdrawn multi-user recording was replaced by the current parallel-and-refresh recording; prior observations are not reused."
 }

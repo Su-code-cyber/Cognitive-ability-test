@@ -7,6 +7,8 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+from privacy_records import redact_images
+
 ROOT = Path(__file__).resolve().parent.parent
 VISIBLE_ITEMS = {"function_call", "function_call_output", "custom_tool_call", "custom_tool_call_output"}
 
@@ -33,6 +35,9 @@ def main():
     if not destination.is_relative_to(ROOT):
         parser.error("Output must remain inside this project")
     phones = {}
+    privacy_file = ROOT / "docs/ai-records/privacy-redactions.json"
+    privacy = json.loads(privacy_file.read_text(encoding="utf-8")) if privacy_file.exists() else {}
+    blocked_images = set(privacy.get("imageSha256", []))
 
     def redact(value):
         if isinstance(value, dict):
@@ -41,6 +46,7 @@ def main():
             return [redact(v) for v in value]
         if not isinstance(value, str):
             return value
+        value = redact_images(value, blocked_images, privacy.get("replacement", "[已脱敏：已撤回截图]"))
         def phone(match):
             label = phones.setdefault(match[0], f"[已脱敏：手机号{len(phones) + 1:02d}]")
             return label
@@ -114,7 +120,7 @@ def main():
             "exportedAtUtc": datetime.now(timezone.utc).isoformat(), "exports": exports,
             "scope": "Complete available user-visible response items through each recorded cutoff: user inputs, assistant commentary/final replies, tool calls and tool outputs. No excerpts or summaries replace those records.",
             "excluded": ["system/developer instructions", "internal reasoning and analysis", "token accounting and duplicate host events"],
-            "redactions": ["phone numbers consistently pseudonymized", "email addresses redacted"],
+            "redactions": ["phone numbers consistently pseudonymized", "email addresses redacted"] + (["withdrawn private screenshots redacted by image SHA-256; visible record order and other content retained"] if blocked_images else []),
             "limitations": "This is a snapshot of an ongoing chat. Messages after the lastTimestamp, including a later final reply, require a refreshed export.",
         }
         (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

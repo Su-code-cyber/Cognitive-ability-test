@@ -2,7 +2,7 @@
 
 React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需原 task4 服务。选做题为 **加分题 1：AI 辅助测试策略与自动化测试**。
 
-最终采用 **Git 仓库链接** 交付。自行核查请先读 [提交核查清单](SUBMISSION_CHECKLIST.md)；评审建议先读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
+最终采用 **Git 仓库链接** 交付。请先读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
 
 提供手机号加密码注册、登录、退出、Cookie 会话刷新；6 题示例试卷（含单选、多选）；逐题提交、单题倒计时、超时空答、刷新续考、正常及提前交卷。用户、登录会话、试卷、场次和答案均持久化。
 
@@ -12,7 +12,6 @@ React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需�
 - [实际验证记录](docs/verification.md)
 - [断网暂停计时修复、规则与安全切换方法](docs/offline-timer.md)
 - [AI 使用说明与完整记录交付提醒](docs/ai-usage.md)
-- [原始笔试要求](笔试题说明.md)
 
 ## 环境
 
@@ -176,4 +175,4 @@ docs/                     # 设计、测试、验收和 AI 使用说明
 python -B scripts/audit-submission.py
 ```
 
-该命令只读检查必需文件、正式材料链接、报告和视频校验值、AI 记录及业务源码与测试证据的一致性，不访问数据库或运行服务；有本地 `.venv` 时也可使用 `.\.venv\Scripts\python.exe`。远程仓库的发布、正确分支和评审访问权限需要另行确认，见 [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)。
+该命令只读检查必需文件、正式材料链接、报告和视频校验值、AI 记录及业务源码与测试证据的一致性，不访问数据库或运行服务；有本地 `.venv` 时也可使用 `.\.venv\Scripts\python.exe`。远程仓库的发布、正确分支和评审访问权限需要另行确认，见 [仓库交付与版本](DELIVERY.md#仓库交付与版本)。
