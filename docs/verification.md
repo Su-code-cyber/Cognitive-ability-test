@@ -1,5 +1,7 @@
 # 实际验证记录
 
+2026-11-01 用户授权后，修复已合并并在原目录启用。数据库升级及只读访问验证见 [启用记录](deployment-20261101.md)；以下“原服务未切换”等描述保留为此前隔离回归时的历史情况。
+
 本次开发与验证环境：Windows、Python 3.12.14、Node.js 24.15.0、npm 11.12.1。Python 完整版本锁定在 `backend/requirements.lock.txt`，前端和 Playwright 锁定在 `package-lock.json`。
 
 最新版本增加了断网暂停与续考修复，当前结果见下节及 [本轮汇总](reports/offline-timer/summary.json)。之后保留的加分题1初版及首次功能验收记录属于历史结果，不能把旧的离线持续计时规则、固定端口或旧临时目录说明当成当前行为。
