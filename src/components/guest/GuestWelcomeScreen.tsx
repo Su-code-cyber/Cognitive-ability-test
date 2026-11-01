@@ -40,7 +40,7 @@ const rules: { icon: ReactNode; text: string }[] = [
   },
   {
     icon: <Clock size={18} strokeWidth={2} className="text-cyan-200" />,
-    text: '每题按页面倒计时限时作答；超时记为空答并进入下一题。',
+    text: '联网作答时计时；连接中断或离开后保留剩余时间。在线超时记为空答并进入下一题。',
   },
   {
     icon: <BrainCircuit size={18} strokeWidth={2} className="text-cyan-200" />,

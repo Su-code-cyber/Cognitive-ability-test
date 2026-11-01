@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.main import PREFIX, create_app
-from backend.tests.conftest import answer_body, post, register, start
+from backend.tests.conftest import answer_body, online_seconds, post, register, start
 
 
 def progress(client, session):
@@ -66,6 +66,9 @@ def test_users_have_independent_progress_and_cannot_access_each_other(client, ap
         assert progress(other, b)["answeredQuestions"] == 0
         assert progress(client, a)["answeredQuestions"] == 1
         for actor, target in [(other, a), (client, b)]:
+            body = answer_body(target)
+            del body["answer"]
+            post(actor, "/exam/heartbeat", body, expected=404)
             post(actor, "/exam/resumeExam", {"sessionCode": target["sessionCode"]}, expected=404)
             post(actor, "/exam/finishExam", {"sessionCode": target["sessionCode"]}, expected=404)
             post(actor, "/exam/submitAnswer", answer_body(target), expected=404)
@@ -74,11 +77,12 @@ def test_users_have_independent_progress_and_cannot_access_each_other(client, ap
             assert len(records) == 1 and records[0]["sessionCode"] != target["sessionCode"]
 
 
-def test_refresh_and_server_restart_preserve_progress_deadline_and_cookie(client, app, settings, clock):
+def test_refresh_and_server_restart_preserve_connected_budget_and_cookie(client, app, settings, clock):
     register(client)
     session = start(client)
-    post(client, "/exam/submitAnswer", answer_body(session, answer="C"))
-    clock.advance(17)
+    next_question = post(client, "/exam/submitAnswer", answer_body(session, answer="C"))["nextQuestion"]
+    online_seconds(client, clock, session, 17, next_question)
+    clock.advance(600)
     restored = post(client, "/exam/resumeExam", {"sessionCode": session["sessionCode"]})
     assert restored["currentQuestion"]["questionIndex"] == 2
     assert restored["currentQuestion"]["remainingSeconds"] == 43
@@ -91,10 +95,10 @@ def test_refresh_and_server_restart_preserve_progress_deadline_and_cookie(client
         post(restarted, "/auth/login", {"phone": "13800000001", "password": "Local-test-123!"})
 
 
-def test_deadline_cannot_be_reset_and_timeout_records_blank(client, app, clock):
+def test_connected_budget_cannot_be_reset_and_timeout_records_blank(client, app, clock):
     register(client)
     session = start(client)
-    clock.advance(60)
+    online_seconds(client, clock, session, 60)
     for _ in range(2):
         restored = post(client, "/exam/resumeExam", {"sessionCode": session["sessionCode"]})
         assert restored["currentQuestion"]["remainingSeconds"] == 0
@@ -103,7 +107,7 @@ def test_deadline_cannot_be_reset_and_timeout_records_blank(client, app, clock):
     assert result["timedOut"]
     assert result["nextQuestion"]["questionIndex"] == 2
     assert result["nextQuestion"]["remainingSeconds"] == 60
-    clock.advance(61)
+    online_seconds(client, clock, session, 61, result["nextQuestion"])
     post(client, "/exam/submitAnswer", answer_body(session, result["nextQuestion"], ""))
     with app.state.db.connect() as conn:
         rows = conn.execute("SELECT * FROM answers").fetchall()

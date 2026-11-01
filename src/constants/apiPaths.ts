@@ -14,6 +14,7 @@ export const EXAM_API = {
   submitAnswer: `${PREFIX}/exam/submitAnswer`,
   getExamProgress: `${PREFIX}/exam/getExamProgress`,
   resumeExam: `${PREFIX}/exam/resumeExam`,
+  heartbeat: `${PREFIX}/exam/heartbeat`,
   finishExam: `${PREFIX}/exam/finishExam`,
   getMyExamRecords: `${PREFIX}/exam/getMyExamRecords`,
 } as const

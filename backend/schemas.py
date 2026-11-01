@@ -24,7 +24,10 @@ class SessionRequest(RequestModel):
     sessionCode: str = Field(min_length=1, max_length=100)
 
 
-class AnswerRequest(SessionRequest):
+class QuestionTimerRequest(SessionRequest):
     questionId: str = Field(min_length=1, max_length=100)
     questionIndex: int = Field(ge=1, strict=True)
+
+
+class AnswerRequest(QuestionTimerRequest):
     answer: str = Field(max_length=200)

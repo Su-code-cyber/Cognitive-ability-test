@@ -6,8 +6,8 @@ import pytest
 from backend import inspect_results
 from backend.config import Settings
 from backend.db import Database
-from backend.exams import finish, start, submit
-from backend.schemas import AnswerRequest
+from backend.exams import finish, heartbeat, start, submit
+from backend.schemas import AnswerRequest, QuestionTimerRequest
 
 
 def test_read_only_results_keep_users_snapshots_timeouts_and_unsubmitted_separate(tmp_path, monkeypatch):
@@ -24,6 +24,8 @@ def test_read_only_results_keep_users_snapshots_timeouts_and_unsubmitted_separat
             submit(conn, 1 if code == a["sessionCode"] else 2, AnswerRequest(
                 sessionCode=code, questionId="q1", questionIndex=1, answer=answer,
             ), now + 1)
+        for second in range(2, 62):
+            heartbeat(conn, 1, QuestionTimerRequest(sessionCode=a["sessionCode"], questionId="q2", questionIndex=2), now + second)
         submit(conn, 1, AnswerRequest(sessionCode=a["sessionCode"], questionId="q2", questionIndex=2, answer="A,C"), now + 61)
         finish(conn, 1, a["sessionCode"], now + 62)
         conn.execute("UPDATE questions SET content = 'changed', correct_answer = 'D' WHERE id = 'q1'")

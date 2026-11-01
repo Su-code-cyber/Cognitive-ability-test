@@ -89,6 +89,7 @@ def test_cross_origin_and_form_requests_rejected(client, app):
     ("POST", "/exam/resumeExam", {"sessionCode": "anything"}),
     ("GET", "/exam/getExamProgress?sessionCode=anything", None),
     ("POST", "/exam/submitAnswer", {"sessionCode": "anything", "questionId": "q1", "questionIndex": 1, "answer": "A"}),
+    ("POST", "/exam/heartbeat", {"sessionCode": "anything", "questionId": "q1", "questionIndex": 1}),
     ("POST", "/exam/finishExam", {"sessionCode": "anything"}),
 ])
 def test_unauthenticated_routes(client, method, path, body):

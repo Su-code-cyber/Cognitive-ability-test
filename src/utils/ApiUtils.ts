@@ -11,6 +11,11 @@ export interface ApiResponse<T = unknown> {
   data?: T
 }
 
+interface ApiRequestOptions extends RequestInit {
+  /** Background connection probes use the exam's persistent pause banner. */
+  quietNetworkError?: boolean
+}
+
 function getFullUrl(url: string): string {
   if (url.startsWith('http')) return url
   if (isDev()) return url
@@ -51,7 +56,7 @@ async function doSendRequest(options: RequestInit, fullUrl: string) {
 
 async function request<T = unknown>(
   url: string,
-  options: RequestInit = {},
+  options: ApiRequestOptions = {},
   retryAfterRefresh = false
 ): Promise<ApiResponse<T>> {
   const fullUrl = getFullUrl(url)
@@ -74,7 +79,7 @@ async function request<T = unknown>(
     ({ response, data } = await doSendRequest(options, fullUrl))
   } catch (error) {
     const message = error instanceof Error ? error.message : '网络请求失败'
-    showBackendUnavailableError(message)
+    if (!options.quietNetworkError) showBackendUnavailableError(message)
     throw error instanceof Error ? error : new Error(message)
   }
 
@@ -114,8 +119,9 @@ export function get<T = unknown>(url: string, params?: Record<string, string | n
   return request<T>(u, { method: 'GET' })
 }
 
-export function post<T = unknown>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+export function post<T = unknown>(url: string, body?: unknown, options: ApiRequestOptions = {}): Promise<ApiResponse<T>> {
   return request<T>(url, {
+    ...options,
     method: 'POST',
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })

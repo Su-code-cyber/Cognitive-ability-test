@@ -79,3 +79,13 @@ def start(client):
 def answer_body(session, question=None, answer="A"):
     q = question or session["currentQuestion"]
     return {"sessionCode": session["sessionCode"], "questionId": q["questionId"], "questionIndex": q["questionIndex"], "answer": answer}
+
+
+def online_seconds(client, clock, session, seconds, question=None):
+    q = question or session["currentQuestion"]
+    for _ in range(seconds):
+        clock.advance(1)
+        body = answer_body(session, q)
+        del body["answer"]
+        result = post(client, "/exam/heartbeat", body)
+    return result

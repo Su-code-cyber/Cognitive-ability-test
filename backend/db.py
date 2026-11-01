@@ -33,10 +33,13 @@ class Database:
             conn.execute("PRAGMA journal_mode = WAL")
             conn.execute("CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)")
             version = conn.execute("SELECT COALESCE(MAX(version), 0) FROM schema_migrations").fetchone()[0]
-            if version > 1:
+            if version > 2:
                 raise RuntimeError("Database schema is newer than this application")
             if version < 1:
                 migration = Path(__file__).with_name("migrations") / "001_initial.sql"
+                conn.executescript("BEGIN IMMEDIATE;\n" + migration.read_text(encoding="utf-8") + "\nCOMMIT;")
+            if version < 2:
+                migration = Path(__file__).with_name("migrations") / "002_connected_timer.sql"
                 conn.executescript("BEGIN IMMEDIATE;\n" + migration.read_text(encoding="utf-8") + "\nCOMMIT;")
         self.seed()
 

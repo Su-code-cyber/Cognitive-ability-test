@@ -2,7 +2,7 @@
 
 ## 业务与范围
 
-保留考生端现有 React 页面，实现其依赖的 5 个认证接口和 7 个考试接口。后端为 FastAPI 单应用，数据库使用 Python 标准库 sqlite3，部署无需额外数据库进程。加分题选择自动化测试。不实现管理员后台、短信验证、题库编辑器、复杂评分模型、摄像头或防作弊监控。
+保留考生端现有 React 页面，实现其依赖的 5 个认证接口和 8 个考试接口（含计时心跳）。后端为 FastAPI 单应用，数据库使用 Python 标准库 sqlite3，部署无需额外数据库进程。加分题选择自动化测试。不实现管理员后台、短信验证、题库编辑器、复杂评分模型、摄像头或防作弊监控。
 
 手机号只作为账号标识；格式与前端对齐，密码 8～128 位且不能全为空白。注册同时登录。每个用户、每套试卷仅允许一个场次，重复开始返回原场次；进行中继续，完成后不能重考。这个取舍减少重复点击及刷新创建多个场次的问题。
 
@@ -15,7 +15,7 @@
 | exams | 可用试卷 |
 | questions | 题干、类型、选项、标准答案和单题时限 |
 | exam_questions | 试卷内题目顺序，同一试卷不重复题目 |
-| exam_sessions | 用户场次、状态、当前题、开始与结束时间；用户和试卷组合唯一 |
+| exam_sessions | 用户场次、状态、当前题、开始与结束时间、剩余作答时间及心跳锚点；用户和试卷组合唯一 |
 | session_questions | 开考时复制题目快照，后续题库变化不影响已开始考试 |
 | answers | 每个场次每个题号至多一条答案，记录超时和客观题判定 |
 | schema_migrations | 已执行迁移版本 |
@@ -37,6 +37,7 @@ SQLite 启用外键、WAL 和 15 秒锁等待。一次提交的“检查场次 �
 | POST /exam/startExam | examId | sessionCode, status, isExamFinished, currentQuestion, totalQuestions |
 | POST /exam/getMyExamRecords | curPage, pageSize, params | list[{sessionCode,examId,status,...}], total |
 | POST /exam/resumeExam | sessionCode | 与开始响应一致 |
+| POST /exam/heartbeat | sessionCode, questionId, questionIndex | 与开始响应一致；只确认计时，不提交、不切题 |
 | GET /exam/getExamProgress | 查询参数 sessionCode | totalQuestions, answeredQuestions, questionIndex, status |
 | POST /exam/submitAnswer | sessionCode, questionId, questionIndex, answer | nextQuestion, isExamFinished, timedOut；重试可能有 duplicate |
 | POST /exam/finishExam | sessionCode | sessionCode, status, isExamFinished |
@@ -57,9 +58,9 @@ SQLite 启用外键、WAL 和 15 秒锁等待。一次提交的“检查场次 �
 
 ## 倒计时、重试与结束状态
 
-开始当前题时持久化 `question_started_at`，剩余秒数为 `ceil(开始时间+时限-服务器当前时间)`，最低为 0。刷新、续考、重复开始均不重置计时。到截止时刻或之后收到的提交，忽略本地选择，记空答案和 timed_out=1。这避免信任浏览器声称的选择时间，但网络迟到可能导致原本及时选择的答案记为空答；本版本不提供网络宽限或草稿保存。
+持久化 `question_remaining_seconds`（允许小数）及 `timer_updated_at`；开始当前题时取开考快照的时限。前端在线作答每秒发送一次心跳，由服务器以自身时钟扣除相邻连接确认之间的时间，事务保护并发扣时；返回 `ceil(剩余秒数)` 用于显示，不将取整值写回数据库。题目开始时间仅保留审计用途，不再充当离线截止时间。
 
-超时推进由页面提交驱动：页面关闭后当前题仍计时，重开时返回 0 并立即提交空答；下一题从实际推进时开始计时，不在离线期间逐题累积超时。服务器无需后台计时任务。
+连接中断、页面关闭或服务中断造成超过 4 秒的心跳空窗不扣时；恢复接口从数据库保留的预算重新锚定，不扣离开期间的时间、不恢复整题时限。前端遇到 offline 事件、探测失败或超时会停表并显示暂停提示，重连先恢复当前题；只有成功收到服务器剩余时间为 0 才会触发空答切题。已在线耗尽的时间不会因刷新复活。心跳本身永不写答案或切题，旧题心跳返回 409，避免迟到请求扣下一题时间。具体容差、升级与防作弊边界见 [offline-timer.md](offline-timer.md)。
 
 进行中的场次重复提交同一已保存答案时，返回当前下一题，不增加记录或再次推进；尝试改答案返回 409。已超时题的重试按已保存的空答处理。交卷后包括原样重试在内的答题请求全部返回 409。重复交卷返回原完成结果，不改变结束时间。提前交卷不把未提交选择当作已保存答案。
 

@@ -91,6 +91,64 @@ test('真实页面：未选答案超时自动切题', async ({ page }) => {
   await expect(page.getByRole('checkbox').first()).toBeVisible()
 })
 
+test('真实页面：断网超过单题时限、离线刷新后仍恢复原题剩余时间', async ({ page, context }, testInfo) => {
+  await authenticate(page, '13800001008')
+  await begin(page)
+  const tick = await page.waitForResponse((r) => r.url().endsWith('/exam/heartbeat') && r.status() === 200)
+  const confirmed = (await tick.json()).data.currentQuestion.remainingSeconds
+  const records = await page.request.post(prefix + '/exam/getMyExamRecords', { data: {} })
+  const code = (await records.json()).data.list[0].sessionCode
+  await context.setOffline(true)
+  await expect(page.getByText('连接中断，计时已暂停；网络恢复后将从当前题剩余时间继续。', { exact: true })).toBeVisible()
+  await page.waitForTimeout(9000) // isolated sample questions have an eight-second limit
+  await expect(page.getByRole('radio').first()).toBeVisible()
+  await expect(page.locator('strong').first()).toHaveText('1')
+  await page.screenshot({ path: testInfo.outputPath('offline-paused.png'), animations: 'disabled' })
+  const reconnect = page.waitForResponse((r) => r.url().endsWith('/exam/resumeExam') && r.status() === 200)
+  await context.setOffline(false)
+  const restored = (await (await reconnect).json()).data.currentQuestion
+  expect(restored.questionIndex).toBe(1)
+  expect(restored.remainingSeconds).toBeGreaterThanOrEqual(confirmed - 1)
+  expect(restored.remainingSeconds).toBeLessThanOrEqual(confirmed)
+  await expect(page.getByText(/连接中断，计时已暂停/)).toHaveCount(0)
+  // Reload with the network actually unavailable; no app/localStorage can run.
+  await context.setOffline(true)
+  await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {})
+  await page.waitForTimeout(9000)
+  await context.setOffline(false)
+  await page.goto('/exam')
+  const resume = page.waitForResponse((r) => r.url().endsWith('/exam/resumeExam') && r.status() === 200)
+  await page.getByRole('button', { name: '继续测评', exact: true }).click()
+  const again = (await (await resume).json()).data.currentQuestion
+  expect(again.questionIndex).toBe(1)
+  expect(again.remainingSeconds).toBeGreaterThan(0)
+  expect(again.remainingSeconds).toBeLessThanOrEqual(restored.remainingSeconds)
+  await page.getByRole('radio').nth(2).check()
+  await next(page, 1)
+  await expect(page.getByRole('checkbox').first()).toBeVisible()
+  const progress = await page.request.get(prefix + '/exam/getExamProgress', { params: { sessionCode: code } })
+  expect((await progress.json()).data.answeredQuestions).toBe(1)
+})
+
+test('真实页面：后端不可达但浏览器仍在线时暂停并自动恢复', async ({ page }) => {
+  await authenticate(page, '13800001009')
+  await begin(page)
+  await page.waitForResponse((r) => r.url().endsWith('/exam/heartbeat') && r.status() === 200)
+  // Abort only this isolated browser's probes, without stopping any server.
+  const pattern = '**/exam/heartbeat'
+  await page.route(pattern, (route) => route.abort('connectionfailed'))
+  await page.route('**/exam/resumeExam', (route) => route.abort('connectionfailed'))
+  await expect(page.getByText(/连接中断，计时已暂停/)).toBeVisible()
+  await page.waitForTimeout(9000)
+  await expect(page.getByRole('radio').first()).toBeVisible()
+  await expect(page.locator('strong').first()).toHaveText('1')
+  await page.unroute(pattern)
+  await page.unroute('**/exam/resumeExam')
+  await expect(page.getByText(/连接中断，计时已暂停/)).toHaveCount(0)
+  await page.getByRole('radio').first().check()
+  await next(page, 1)
+})
+
 test('真实页面：提交响应丢失后重试不重复推进', async ({ page }, testInfo) => {
   await authenticate(page, '13800001004')
   await begin(page)

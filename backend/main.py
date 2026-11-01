@@ -13,7 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from backend import exams
 from backend.config import Settings
 from backend.db import Database
-from backend.schemas import AnswerRequest, Credentials, PageRequest, SessionRequest, StartRequest
+from backend.schemas import AnswerRequest, Credentials, PageRequest, QuestionTimerRequest, SessionRequest, StartRequest
 from backend.security import hash_password, new_token, token_hash, verify_password
 
 PREFIX = "/api/blue/bluecommonservice"
@@ -179,8 +179,13 @@ def create_app(settings: Settings | None = None, clock: Callable[[], float] = ti
 
     @app.post(PREFIX + "/exam/resumeExam")
     def resume(body: SessionRequest, user: User):
-        with db.connect() as conn:
-            return ok(exams.session_result(conn, exams.owned_session(conn, body.sessionCode, user["id"]), clock()))
+        with db.connect(write=True) as conn:
+            return ok(exams.resume(conn, user["id"], body.sessionCode, clock()))
+
+    @app.post(PREFIX + "/exam/heartbeat")
+    def heartbeat(body: QuestionTimerRequest, user: User):
+        with db.connect(write=True) as conn:
+            return ok(exams.heartbeat(conn, user["id"], body, clock()))
 
     @app.get(PREFIX + "/exam/getExamProgress")
     def progress(user: User, sessionCode: Annotated[str, Query(min_length=1, max_length=100)]):

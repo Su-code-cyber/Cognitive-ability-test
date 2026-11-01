@@ -75,8 +75,14 @@ export function getExamProgress(sessionCode: string) {
   return get<ExamProgressResult>(EXAM_API.getExamProgress, { sessionCode })
 }
 
-export function resumeExam(sessionCode: string) {
-  return post<StartExamResult>(EXAM_API.resumeExam, { sessionCode })
+export function resumeExam(sessionCode: string, signal?: AbortSignal) {
+  return post<StartExamResult>(EXAM_API.resumeExam, { sessionCode }, { signal, quietNetworkError: !!signal })
+}
+
+export function examHeartbeat(sessionCode: string, questionId: string, questionIndex: number, signal: AbortSignal) {
+  return post<StartExamResult>(EXAM_API.heartbeat, { sessionCode, questionId, questionIndex }, {
+    signal, quietNetworkError: true,
+  })
 }
 
 export function finishExam(sessionCode: string) {

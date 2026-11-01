@@ -8,6 +8,45 @@ from fastapi import HTTPException
 
 from backend.schemas import AnswerRequest
 
+# A missing heartbeat is treated as a connection interruption. Do not spend the
+# budget for a long silent gap (offline refresh, closed page or server outage).
+CONNECTION_WINDOW_SECONDS = 4
+
+
+def settle_timer(conn, session, now, *, reconnect=False):
+    if session["status"] == "completed":
+        return session
+    remaining = session["question_remaining_seconds"]
+    if remaining is None:
+        # Legacy attempts have no connected-time history. Give only their current
+        # unsubmitted question its snapshot limit, once; keep all saved answers.
+        remaining = snapshot_at(conn, session["session_code"], session["current_index"])["timeLimitSeconds"]
+    elif not reconnect and session["timer_updated_at"] is not None:
+        elapsed = max(0, now - session["timer_updated_at"])
+        if elapsed <= CONNECTION_WINDOW_SECONDS:
+            remaining = max(0, remaining - elapsed)
+    conn.execute(
+        "UPDATE exam_sessions SET question_remaining_seconds = ?, timer_updated_at = ? WHERE session_code = ?",
+        (remaining, now, session["session_code"]),
+    )
+    return owned_session(conn, session["session_code"], session["user_id"])
+
+
+def heartbeat(conn, user_id, body, now):
+    session = owned_session(conn, body.sessionCode, user_id)
+    if session["status"] != "in_progress":
+        raise HTTPException(409, "考试已结束")
+    q = snapshot_at(conn, body.sessionCode, session["current_index"])
+    if body.questionIndex != session["current_index"] or body.questionId != q["questionId"]:
+        raise HTTPException(409, "题目已变化，请恢复考试进度")
+    session = settle_timer(conn, session, now)
+    # Heartbeats only account for time. They never submit answers or advance.
+    return session_result(conn, session, now)
+
+
+def resume(conn, user_id, code, now):
+    return session_result(conn, settle_timer(conn, owned_session(conn, code, user_id), now, reconnect=True), now)
+
 
 def owned_session(conn, code: str, user_id: int):
     row = conn.execute("SELECT * FROM exam_sessions WHERE session_code = ? AND user_id = ?", (code, user_id)).fetchone()
@@ -38,7 +77,7 @@ def current_question(conn, session, now):
         "optionKeys": list(q["options"]), "questionIndex": session["current_index"],
         "totalQuestions": total_questions(conn, session["session_code"]),
         "timeLimitSeconds": q["timeLimitSeconds"],
-        "remainingSeconds": max(0, math.ceil(session["question_started_at"] + q["timeLimitSeconds"] - now)),
+        "remainingSeconds": math.ceil(session["question_remaining_seconds"] if session["question_remaining_seconds"] is not None else q["timeLimitSeconds"]),
         "unansweredWarningSeconds": min(10, q["timeLimitSeconds"]),
     }
 
@@ -57,7 +96,7 @@ def start(conn, user_id, exam_id, now):
         raise HTTPException(404, "试卷不存在或未开放")
     existing = conn.execute("SELECT * FROM exam_sessions WHERE user_id = ? AND exam_id = ?", (user_id, exam_id)).fetchone()
     if existing:
-        return session_result(conn, existing, now)
+        return resume(conn, user_id, existing["session_code"], now)
     questions = conn.execute(
         "SELECT q.* FROM exam_questions eq JOIN questions q ON q.id = eq.question_id WHERE eq.exam_id = ? ORDER BY eq.position",
         (exam_id,),
@@ -76,7 +115,7 @@ def start(conn, user_id, exam_id, now):
             "timeLimitSeconds": q["time_limit_seconds"],
         }
         conn.execute("INSERT INTO session_questions VALUES (?, ?, ?, ?)", (code, position, q["id"], json.dumps(snapshot, ensure_ascii=False)))
-    return session_result(conn, owned_session(conn, code, user_id), now)
+    return resume(conn, user_id, code, now)
 
 
 def canonical_answer(value, q):
@@ -104,11 +143,11 @@ def submit(conn: sqlite3.Connection, user_id: int, body: AnswerRequest, now: flo
             # A lost-response retry must not advance the current question a second time.
             return {"isExamFinished": False, "nextQuestion": current_question(conn, session, now), "duplicate": True}
         raise HTTPException(409, "只能提交当前题目，已提交答案不能修改")
-    timed_out = now >= session["question_started_at"] + q["timeLimitSeconds"]
+    session = settle_timer(conn, session, now)
+    timed_out = session["question_remaining_seconds"] <= 0
     if not answer and not timed_out:
         raise HTTPException(400, "请选择答案；未超时不能提交空答案")
-    # After the server deadline there is no evidence when a local selection was made.
-    # Persist a timeout with an empty answer instead of accepting a late answer.
+    # Only confirmed connected time can exhaust a question's budget.
     saved = "" if timed_out else answer
     conn.execute(
         "INSERT INTO answers VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -118,7 +157,8 @@ def submit(conn: sqlite3.Connection, user_id: int, body: AnswerRequest, now: flo
     if finished:
         conn.execute("UPDATE exam_sessions SET status = 'completed', finished_at = ?, finish_reason = 'normal' WHERE session_code = ?", (now, body.sessionCode))
     else:
-        conn.execute("UPDATE exam_sessions SET current_index = current_index + 1, question_started_at = ? WHERE session_code = ?", (now, body.sessionCode))
+        next_limit = snapshot_at(conn, body.sessionCode, body.questionIndex + 1)["timeLimitSeconds"]
+        conn.execute("UPDATE exam_sessions SET current_index = current_index + 1, question_started_at = ?, question_remaining_seconds = ?, timer_updated_at = ? WHERE session_code = ?", (now, next_limit, now, body.sessionCode))
     updated = owned_session(conn, body.sessionCode, user_id)
     return {"isExamFinished": finished, "nextQuestion": current_question(conn, updated, now), "timedOut": timed_out}
 

@@ -2,3 +2,4 @@
 docs/ai-records/*.visible.md -whitespace
 # Checksummed evidence must retain its original bytes across Git checkouts/archives.
 docs/reports/bonus1/* -text -whitespace
+docs/reports/offline-timer/* -text -whitespace

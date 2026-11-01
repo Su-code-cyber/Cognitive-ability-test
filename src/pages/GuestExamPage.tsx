@@ -15,7 +15,7 @@ import {
 } from '@/api/examApi'
 import { combineQuestionDisplayHtml } from '@/utils/examHtml'
 import { isGuestQuotaLimitMessage } from '@/utils/guestQuota'
-import { useQuestionCountdown } from '@/hooks/useQuestionCountdown'
+import { useConnectedCountdown } from '@/hooks/useConnectedCountdown'
 
 function normalizeQuestion(
   raw: Record<string, unknown> | null | undefined
@@ -274,15 +274,15 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
     latestAnswerRef.current = ''
   }, [question?.questionId])
 
-  // 单题时限与剩余时间均由后端随题目下发；倒计时按墙钟时间锚定，切题由前端驱动。
-  // 续考时后端给出的剩余时间可能为 0，此时会立即提交空答案并进入下一题。
-  const remainingSeconds = useQuestionCountdown({
+  // Only a successful server heartbeat may confirm expiry and advance a question.
+  const { remainingSeconds, paused } = useConnectedCountdown({
+    sessionCode,
     questionId: question?.questionId,
-    totalSeconds: question?.timeLimitSeconds,
+    questionIndex: question?.questionIndex,
     remainingSeconds: question?.remainingSeconds,
     active: phase === 'testing' && !!question,
+    submitting,
     onExpire: () => {
-      // 后端按截止时间判定超时，过期提交会被记为空答。
       handleSubmitAnswer(latestAnswerRef.current || '')
     },
   })
@@ -334,6 +334,9 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
   if (phase === 'testing' && question) {
     return (
       <div style={{ width: '100%', minHeight: '100vh', margin: 0 }}>
+        {paused && (
+          <Alert type="warning" showIcon message="连接中断，计时已暂停；网络恢复后将从当前题剩余时间继续。" />
+        )}
         {submitError && (
           <Alert type="error" showIcon message={`答案提交失败：${submitError}`}
             action={<Button disabled={submitting} onClick={() => handleSubmitAnswer(latestAnswerRef.current)}>重试提交</Button>} />
@@ -348,7 +351,7 @@ export default function GuestExamPage({ recruitmentYear, recruitmentSeason }: Gu
             latestAnswerRef.current = answer
           }}
           onFinish={handleFinish}
-          submitting={submitting}
+          submitting={submitting || paused}
         />
       </div>
     )
