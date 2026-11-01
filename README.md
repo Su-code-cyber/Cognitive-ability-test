@@ -2,6 +2,8 @@
 
 React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需原 task4 服务。选做题为 **加分题 1：AI 辅助测试策略与自动化测试**。
 
+评审建议先阅读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
+
 提供手机号加密码注册、登录、退出、Cookie 会话刷新；6 题示例试卷（含单选、多选）；逐题提交、单题倒计时、超时空答、刷新续考、正常及提前交卷。用户、登录会话、试卷、场次和答案均持久化。
 
 - [设计与接口约定](docs/design.md)
@@ -18,7 +20,7 @@ React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需�
 - Node.js 20.19+ 或 22.12+；本次实测 Node 24.15.0、npm 11.12.1。
 - 普通本地部署即可，不需要外部数据库、短信服务或云服务。
 
-下列命令在项目根目录执行。Windows 示例使用 PowerShell，不需要激活虚拟环境。Python 和 npm 的依赖、缓存、临时文件及浏览器全部放在项目内。
+下列命令在解压后的项目根目录执行；`D:\Blue\intern-written-test` 只是本机路径示例，请替换为实际位置。Windows 示例使用 PowerShell，不需要激活虚拟环境。Python 和 npm 的依赖、缓存、临时文件及浏览器全部放在项目内。
 
 ## 首次安装（Windows PowerShell）
 
@@ -124,7 +126,7 @@ npm run test:e2e
 
 每轮的源码快照、数据库、浏览器资料、缓存和报告都在 `.runtime/node_modules/test-runs/<运行ID>/`。`node_modules` 这一层用于避开开发 Vite 的文件监听，避免测试创建的配置和 HTML 导致正在考试的页面热更新。数据库和浏览器请求还受本轮目录、地址及服务身份守卫限制，配置缺失时直接失败，不回退到开发库。
 
-最新运行位置见 `.runtime/latest-api.json`、`.runtime/latest-e2e.json`；完整验收汇总见 `.runtime/latest-validation.json`。每轮 `reports/` 包含 JUnit、日志及浏览器 HTML 报告。成功运行后执行 `.\.venv\Scripts\python.exe -B scripts/archive-test-reports.py`，将不含数据库或 Cookie 的交付证据保存到 `docs/reports/bonus1/`。
+最新运行位置见 `.runtime/latest-api.json`、`.runtime/latest-e2e.json`；完整验收汇总见 `.runtime/latest-validation.json`。每轮 `reports/` 包含 JUnit、日志及浏览器 HTML 报告。评审成功重跑后可执行 `.\.venv\Scripts\python.exe -B scripts/archive-test-reports.py --report-name reviewer-run`，将不含数据库或 Cookie 的新证据保存到 `docs/reports/reviewer-run/`，保留交付时已有的历史报告。
 
 `npm run test:clean -- --run 运行ID` 只清理指定的已结束自有测试，不带参数时清理所有已结束自有测试。活动测试、未知目录、开发数据、浏览器安装和依赖均保留；测试运行时清理会被互斥锁拒绝。详见 [加分题1说明](docs/bonus1.md)。
 
@@ -166,4 +168,12 @@ docs/                     # 设计、测试、验收和 AI 使用说明
 
 功能开发位于 `feature/python-backend-tests` 分支。代码、迁移和测试分阶段提交，运行数据和依赖不入库。尚未推送远程。
 
-提交笔试前还须从使用过的 AI 工具导出完整对话及可导出的工具记录，放入交付包或提供评审可访问的链接。`docs/ai-usage.md` 不是完整对话的替代物。
+完整可见对话及可导出的工具记录已分段保存在 `docs/ai-records/`，截止时间和宿主模型信息见清单；`docs/ai-usage.md` 是工具说明，不能代替完整记录。聊天继续后应在提交前刷新导出。7 个用户手动录屏随最终源码包交付，实际用户数据库、备份、Cookie、个人浏览器资料及依赖目录不入包。
+
+如需重新打包，先提交要交付的源码、材料和录屏，再执行（输出位于项目 `.runtime/node_modules/deliverables/`）：
+
+```powershell
+.\.venv\Scripts\python.exe -B scripts/package-delivery.py
+```
+
+打包脚本只读取当前 Git 已提交快照，校验报告和录屏，附上提交号、逐文件 SHA-256 和完整 ZIP 校验值。详情及交付项对应见 [DELIVERY.md](DELIVERY.md)。
