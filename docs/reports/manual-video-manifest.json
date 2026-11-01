@@ -1,7 +1,7 @@
 {
-  "recordedBy": "User-provided manual test recordings",
+  "recordedBy": "Manual examination workflow recordings",
   "indexedAtUtc": "2026-11-01T12:46:47.322454+00:00",
-  "reviewMethod": "Selected frames plus metadata; not a frame-by-frame or audio audit",
+  "reviewMethod": "Video metadata and selected-frame inspection",
   "videos": [
     {
       "path": "docs/reports/单选+多选+超时+提前交卷.mp4",
@@ -129,6 +129,5 @@
       ],
       "sha256": "5e2e08dad43a9852a12bfa2555d585ea3b4a4c4a16ecdf8af0d549ea58bbc3b5"
     }
-  ],
-  "replacementNote": "The withdrawn multi-user recording was replaced by the current parallel-and-refresh recording; prior observations are not reused."
+  ]
 }

@@ -120,7 +120,7 @@ def main():
             "exportedAtUtc": datetime.now(timezone.utc).isoformat(), "exports": exports,
             "scope": "Complete available user-visible response items through each recorded cutoff: user inputs, assistant commentary/final replies, tool calls and tool outputs. No excerpts or summaries replace those records.",
             "excluded": ["system/developer instructions", "internal reasoning and analysis", "token accounting and duplicate host events"],
-            "redactions": ["phone numbers consistently pseudonymized", "email addresses redacted"] + (["withdrawn private screenshots redacted by image SHA-256; visible record order and other content retained"] if blocked_images else []),
+            "redactions": ["phone numbers consistently pseudonymized", "email addresses redacted"] + (["image content containing personal information redacted by SHA-256"] if blocked_images else []),
             "limitations": "This is a snapshot of an ongoing chat. Messages after the lastTimestamp, including a later final reply, require a refreshed export.",
         }
         (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

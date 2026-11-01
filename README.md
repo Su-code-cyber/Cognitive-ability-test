@@ -1,30 +1,29 @@
-# Question：认知能力测试系统
+# 认知能力测试系统
 
-React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需原 task4 服务。选做题为 **加分题 1：AI 辅助测试策略与自动化测试**。
+基于现有 React / TypeScript 前端，使用 Python、FastAPI 和 SQLite 实现注册、登录、限时答题、续考和交卷。示例试卷共 6 题，包含单选和多选。账号、场次、已提交答案和剩余作答时间保存到数据库。
 
-最终采用 **Git 仓库链接** 交付。请先读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
+选做加分题 1：AI 辅助测试策略与自动化测试。已完成 55 项接口、数据库及隔离测试和 9 项浏览器测试，全部通过。
 
-提供手机号加密码注册、登录、退出、Cookie 会话刷新；6 题示例试卷（含单选、多选）；逐题提交、单题倒计时、超时空答、刷新续考、正常及提前交卷。用户、登录会话、试卷、场次和答案均持久化。
+## 文档
 
-- [设计与接口约定](docs/design.md)
-- [测试策略、场景和验收方法](docs/testing.md)
-- [加分题1逐项交付与活动用户隔离说明](docs/bonus1.md)
-- [实际验证记录](docs/verification.md)
-- [断网暂停计时修复、规则与安全切换方法](docs/offline-timer.md)
-- [AI 使用说明与完整记录交付提醒](docs/ai-usage.md)
+| 内容 | 位置 |
+| --- | --- |
+| 项目范围与交付内容 | [交付说明](DELIVERY.md) |
+| 数据结构、接口与权限 | [设计说明](docs/design.md) |
+| 测试策略与运行方法 | [测试说明](docs/testing.md) |
+| 加分题实现 | [自动化测试](docs/bonus1.md) |
+| 实际测试结果 | [验证报告](docs/verification.md)、[手工测试](docs/manual-test-results.md) |
+| 计时与续考 | [计时规则](docs/offline-timer.md) |
+| 已知问题与未覆盖范围 | [局限性](docs/limitations.md) |
+| AI 工具及对话记录 | [AI 使用说明](docs/ai-usage.md) |
 
-## 环境
+## 环境与安装
 
-- Python 3.12（本次实测 3.12.14）。
-- Node.js 20.19+ 或 22.12+；本次实测 Node 24.15.0、npm 11.12.1。
-- 普通本地部署即可，不需要外部数据库、短信服务或云服务。
+需要 Python 3.12、Node.js 20.x（20.19 及以上）或 22.12 及以上版本。本次使用 Windows、Python 3.12.14、Node.js 24.15.0 和 npm 11.12.1 验证。
 
-下列命令在克隆后的仓库根目录执行；本地提交目录为 `D:\Blue\final-submission`，请替换为实际位置。Windows 示例使用 PowerShell，不需要激活虚拟环境。Python 和 npm 的依赖、缓存、临时文件及浏览器全部放在项目内。
-
-## 首次安装（Windows PowerShell）
+在仓库根目录执行以下 PowerShell 命令：
 
 ```powershell
-cd D:\Blue\final-submission
 New-Item -ItemType Directory -Force .runtime/tmp | Out-Null
 $env:TEMP = Join-Path (Get-Location) '.runtime\tmp'
 $env:TMP = $env:TEMP
@@ -37,60 +36,52 @@ if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 npm run db:init
 ```
 
-如果 `python` 提示不可用，需要一个已有 Python 3.12 解释器。当前开发机已建好 `.venv`，可直接使用。创建虚拟环境时使用的宿主解释器是 `C:\Users\32533\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`，只读取该解释器，不安装全局依赖。
+若 `python` 命令不可用，替换为已安装的 Python 3.12 解释器路径。Linux/macOS 可使用 `python3.12` 创建虚拟环境，并将解释器路径改为 `.venv/bin/python`；这两个平台尚未实测。
 
-Linux/macOS 可使用 `python3.12 -m venv .venv`，安装时将解释器路径替换为 `.venv/bin/python`；Node 启动和测试脚本会自动选择平台对应路径。临时目录可用 `TMPDIR="$PWD/.runtime/tmp"`。本次仅在 Windows 上实测。
+## 启动与使用
 
-## 启动
-
-终端一：
+在两个终端分别执行：
 
 ```powershell
 npm run dev:api
 ```
-
-终端二：
 
 ```powershell
 npm run dev
 ```
 
-- 页面：http://localhost:5173
-- 健康检查：http://localhost:8003/health
-- 可交互 API 文档：http://localhost:8003/docs
+浏览器访问 http://localhost:5173。后端健康检查为 http://localhost:8003/health，接口文档为 http://localhost:8003/docs。
 
-模拟多个用户时，只需要一份后端和一份前端服务。用户 A 用普通浏览器窗口，用户 B 用同一浏览器的隐私窗口，或使用另一个浏览器；两人都访问 `http://localhost:5173`，分别注册、登录不同账号。不要为每个用户再运行一次 `npm run dev`。同一浏览器的普通标签页共享 Cookie，不能当作独立用户；同一浏览器的多个隐私窗口也可能共享隐私会话。
+系统没有预置账号。使用有效格式的 11 位手机号和 8～128 位密码注册，例如测试号码 `13800002001`。手机号只作为账号标识，不发送短信或验证号码归属。
 
-若看到 `Port 5173 is in use, trying another one...`，说明又启动了一份前端服务，Vite 自动尝试 5174，并不代表新增了一位用户。停止多开的那份前端，保留原来的 5173 服务即可。不同端口也不能可靠隔离登录 Cookie，而且默认后端来源允许列表不包含 5174。
+每个账号每套试卷只能参加一次。进行中的场次可以继续，交卷后不能重新作答。默认每题 60 秒，联网作答时计时；刷新或重新登录后从已保存进度和剩余时间继续。连接中断后暂停计时，在线超时记为空答并进入下一题。当前题未提交的选择不会保存为草稿。
 
-Vite 的 `h + enter`、`o + enter` 是在正在运行 Vite 的终端内输入单个字母后按回车，分别显示帮助、打开默认浏览器。它们不是考试功能；若终端没有响应，直接在浏览器地址栏输入上述页面地址即可，无需依赖快捷键。
+测试两个用户时，共用一份前端和一份后端，分别使用独立浏览器或独立浏览器配置登录不同账号。普通标签页共享 Cookie，不能作为两个独立用户。无需为第二位用户再启动一份前端。
 
-前端 `.env.local` 默认 `VITE_API_PROXY_TARGET=http://localhost:8003`；修改后需重启前端。后端启动时也会自动建表和初始化示例卷，重复启动不会清空数据或重复插入题目。
+## 配置与数据库
 
-没有预置账号。使用以 `1` 开头、第二位为 `3～9`、总长 11 位的测试号码自行注册，例如 `13800002001`，密码为 8～128 位。`12345612345` 虽然有 11 位，但第二位为 `2`，因此不能通过格式校验。手机号只作为账号标识，不验证真实归属、不发送短信。文档及测试中的号码和密码都是测试数据，不要用于外部服务。
+前端 `.env.local` 默认将 API 请求代理至本机 8003 端口。后端读取进程环境变量，`backend/.env.example` 仅作为配置示例，不会自动加载。
 
-页面保留原工程的蓝色光标品牌和视觉设计，外观相同不代表连接原公司的账号库。默认开发配置的前端将请求代理到本机 `localhost:8003`，由本项目 FastAPI 服务读写本地 SQLite 数据库。
+| 环境变量 | 默认值与用途 |
+| --- | --- |
+| EXAM_DATABASE_PATH | `backend/data/exam.sqlite3`，数据库路径 |
+| COOKIE_SECURE | `false`，HTTPS 部署时设为 `true` |
+| ALLOWED_ORIGINS | 本机 5173/8003 地址，部署时替换为实际来源 |
+| QUESTION_TIME_LIMIT_SECONDS | `60`，仅影响首次初始化的示例题 |
 
-每个账号对每套试卷只有一次场次：进行中继续，完成后显示完成页。示例卷默认每题 60 秒。联网作答时计时，连接中断或离开后保留服务器已确认的剩余时间；刷新、续考不恢复完整时限，也不因离线直接跳题。在线剩余时间用尽仍记超时空答并切题。未提交选择不保存。详见 [计时规则与旧数据库升级](docs/offline-timer.md)。
-
-## 配置和数据库
-
-后端从进程环境变量读取配置，`backend/.env.example` 是说明文件，**不会自动加载**。例如：
+例如指定数据库后启动：
 
 ```powershell
 $env:EXAM_DATABASE_PATH = Join-Path (Get-Location) 'backend/data/exam.sqlite3'
 $env:COOKIE_SECURE = 'false'
-$env:ALLOWED_ORIGINS = 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8003,http://127.0.0.1:8003'
 npm run dev:api
 ```
 
-默认数据库为 `backend/data/exam.sqlite3`，其 `-wal`、`-shm` 附属文件也在同目录。不要将数据库或 `.venv` 提交到 Git；备份时先停止服务，再复制该目录。建表迁移位于 `backend/migrations/`，示例数据位于 `backend/seed.json`。
+启动时自动建表和初始化示例卷，重复执行不会清空数据。迁移位于 `backend/migrations/`，题目种子位于 `backend/seed.json`。已开始场次使用题目快照，后续题库变更不会影响其内容和时限。
 
-`QUESTION_TIME_LIMIT_SECONDS` 仅作用于首次初始化示例题，默认 60；不会重写已存在的题目和场次快照。测试使用独立数据库和较短时限，不修改开发数据库。
+备份数据库前应停止后端并复制数据库目录，包括可能存在的 WAL/SHM 文件。已有数据的计时结构升级见 [计时规则](docs/offline-timer.md#数据库升级)。
 
-## 查看各用户的提交结果
-
-在项目根目录另开终端执行，不需要停止正在运行的前后端：
+## 查看作答结果
 
 ```powershell
 npm run db:results
@@ -99,80 +90,36 @@ npm run db:results -- --all
 npm run --silent db:results -- --all --json
 ```
 
-默认列出所有用户及场次汇总，包括未开始考试的账号。`--phone` 查看指定用户每道题的题干、所选选项及内容、标准答案、是否正确、是否超时、提交时间；`--all` 查看所有用户逐题详情。也可用 `--session 场次编号` 精确查询，或添加 `--json` 输出结构化结果。
+默认显示账号和场次汇总；按手机号或添加 `--all` 可查看逐题题干、保存的选项、正确答案、超时状态和提交时间。查询采用 SQLite 只读模式，不修改考试数据。它是本机管理命令，未向考生开放结果查询接口。
 
-命令通过 SQLite 的只读模式查询，与后端使用相同的 `EXAM_DATABASE_PATH` 配置，默认数据库为 `backend/data/exam.sqlite3`。显示的正确答案来自开考时的题目快照；未提交题显示“未提交”，超时题显示“超时空答”，不能据此推断用户曾在页面选择但未提交的选项。时间为北京时间（UTC+08:00）。
+## 自动化测试
 
-这是拥有本机数据库访问权限的开发者查询工具，不是考生页面或公开接口，不会让考生查看其他人的答案，也不输出密码哈希、登录 Cookie 或会话凭据。
-
-## 检查与自动化测试
-
-依赖和浏览器首次安装应在开始服务用户之前完成；测试期间不要重装依赖、修改业务源码或重启用户服务。依赖已准备好后，可在用户作答期间单独运行隔离测试：
+首次安装测试浏览器，然后运行完整测试：
 
 ```powershell
+npm run test:e2e:install
 node scripts/test-all.mjs
 ```
 
-也可以单独执行 API 或浏览器测试；首次准备测试浏览器时使用安装命令：
+也可分别运行 `npm run test:api` 和 `npm run test:e2e`。测试会创建独立数据库、源码快照、缓存、服务端口和浏览器会话，不使用现有考试服务。依赖安装、业务源码修改和服务重启应安排在无用户作答时进行。
 
-```powershell
-npm run test:api
-npm run test:e2e:install
-npm run test:e2e
-```
-
-`test:api` 使用真实 SQLite 文件验证接口和数据库不变量，只停止、重启测试自己创建的 HTTP 进程。`test:e2e` 在动态回环端口启动独立前后端，以无界面 Chromium 操作真实页面，明确排除开发端口 5173/8003，不复用已有服务。
-
-每轮的源码快照、数据库、浏览器资料、缓存和报告都在 `.runtime/node_modules/test-runs/<运行ID>/`。`node_modules` 这一层用于避开开发 Vite 的文件监听，避免测试创建的配置和 HTML 导致正在考试的页面热更新。数据库和浏览器请求还受本轮目录、地址及服务身份守卫限制，配置缺失时直接失败，不回退到开发库。
-
-最新运行位置见 `.runtime/latest-api.json`、`.runtime/latest-e2e.json`；完整验收汇总见 `.runtime/latest-validation.json`。每轮 `reports/` 包含 JUnit、日志及浏览器 HTML 报告。评审成功重跑后可执行 `.\.venv\Scripts\python.exe -B scripts/archive-test-reports.py --report-name reviewer-run`，将不含数据库或 Cookie 的新证据保存到 `docs/reports/reviewer-run/`，保留交付时已有的历史报告。
-
-`npm run test:clean -- --run 运行ID` 只清理指定的已结束自有测试，不带参数时清理所有已结束自有测试。活动测试、未知目录、开发数据、浏览器安装和依赖均保留；测试运行时清理会被互斥锁拒绝。详见 [加分题1说明](docs/bonus1.md)。
-
-部署前还可运行 `npm run lint`、`npm run build` 做前端静态检查和构建；这些不属于活动用户期间的隔离业务测试。
+执行结果见终端输出及 `.runtime/latest-validation.json`。报告归档和测试数据清理见 [测试说明](docs/testing.md)。
 
 ## 构建与部署
 
-`npm run build` 生成 `dist/`。在部署服务器上提供静态目录，History 路由回退到 `index.html`，并将 `/api/blue/` 代理到后端。`nginx.conf` 是参考模板，需要将 `${API_PROXY_TARGET}` 替换为实际后端地址。`npm run preview` 只预览静态产物，不提供 API 代理，不能单独用来验收完整考试。
-
-本仓库没有 Dockerfile，不提供未经验证的 Docker 启动命令。公网部署还需配置 HTTPS、`COOKIE_SECURE=true` 和实际 `ALLOWED_ORIGINS`。当前默认配置用于本机开发。
-
-原单 HTML 构建保留为 `npm run build:html`，产物改为项目内 `dist/question.html`。默认后端不允许 `file://` 的 `Origin: null` Cookie 请求，请通过有 API 代理的 HTTP 服务访问，不将双击 HTML 作为验收方式。
-
-## 目录
-
-```text
-backend/
-  main.py                 # HTTP 接口、会话和权限
-  exams.py                # 考试状态变更与超时规则
-  db.py                   # SQLite 连接、迁移和初始化
-  migrations/             # 版本化建表脚本
-  seed.json               # 六题示例卷
-  tests/                  # 接口、隔离、并发、持久化测试
-src/                      # 现有 React 前端及必要对接修改
-tests/e2e/                # 真实浏览器完整流程
-scripts/                  # 启动、测试、构建和清理命令
-docs/                     # 设计、测试、验收和 AI 使用说明
+```powershell
+npm run lint
+npm run build
 ```
+
+构建产物位于 `dist/`。部署时需为前端配置 History 路由回退，并将 `/api/blue/` 代理至后端。`nginx.conf` 提供参考配置，`${API_PROXY_TARGET}` 应替换为实际后端地址。`npm run preview` 仅用于静态预览，不提供 API 代理。
+
+本机部署即可完成验收。公网运行还需配置 HTTPS、Cookie 和允许来源，并评估负载、备份与监控。
 
 ## 常见问题
 
-- **“无法连接后端”**：确认后端终端没有报错，`/health` 可访问，前端代理地址正确。
-- **Cookie 不生效**：本机 HTTP 使用 `COOKIE_SECURE=false`；不要在一次操作中混用 `localhost` 和 `127.0.0.1`。
-- **注册失败**：检查手机号格式、重复注册和密码长度。密码错误返回统一提示，不暴露账号是否存在。
-- **已交卷后无法重考**：这是一次性场次规则。验收新流程时使用另一个测试账号。
-- **测试卡在事件循环或无法启动浏览器**：受限环境需允许本机回环通信、子进程启动及浏览器执行；应用不应为绕过限制而降级权限检查。
-
-## Git 与交付
-
-原功能开发位于 `feature/python-backend-tests`，本提交目录使用 `submission/final` 并保留已有提交历史。代码、迁移和测试分阶段提交，运行数据和依赖不入库。最终远程发布尚未执行；不要把来源仓库旧 main 链接当作交付完成证明。
-
-用户在工作区提供的原始聊天导出已放入 [docs/ai-records/user-export/AI对话记录.md](docs/ai-records/user-export/AI对话记录.md)，保留原字节；完整可见工具记录及后续对话分段保存在同级目录，截止时间和宿主模型信息见清单。`docs/ai-usage.md` 是工具说明，不能代替完整记录。聊天继续后应在提交前刷新记录。7 个手动录屏直接纳入 Git，实际用户数据库、备份、Cookie、个人浏览器资料及依赖目录不入库。
-
-材料可使用 Python 标准库脚本核查，不需要启动服务或安装前端依赖：
-
-```powershell
-python -B scripts/audit-submission.py
-```
-
-该命令只读检查必需文件、正式材料链接、报告和视频校验值、AI 记录及业务源码与测试证据的一致性，不访问数据库或运行服务；有本地 `.venv` 时也可使用 `.\.venv\Scripts\python.exe`。远程仓库的发布、正确分支和评审访问权限需要另行确认，见 [仓库交付与版本](DELIVERY.md#仓库交付与版本)。
+- **无法连接后端**：检查 8003 服务和前端代理地址。
+- **5173 已被占用**：确认是否已有前端运行，直接使用现有地址。默认后端不允许 5174 来源。
+- **登录 Cookie 不生效**：本机 HTTP 使用 `COOKIE_SECURE=false`，同一次操作中保持使用同一主机名。
+- **注册失败**：检查手机号格式、是否重复注册，以及密码长度。
+- **已交卷后无法重考**：属于一次性场次规则，新的验收流程应使用新账号。

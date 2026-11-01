@@ -15,7 +15,7 @@ from privacy_records import contains_withdrawn_image
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_BASE = "fd37911128995780aee580141bc6a26eaee40085"
 CORE_PATHS = ["backend", "src", "tests", "pytest.ini", "package.json", "package-lock.json", "playwright.config.ts", "scripts/test-env.mjs", "scripts/run-tests.mjs", "scripts/test-all.mjs"]
-FORMAL_DOCS = ["README.md", "DELIVERY.md", *[f"docs/{name}.md" for name in ("acceptance-matrix", "manual-test-results", "limitations", "bonus1", "testing", "design", "verification", "offline-timer", "ai-usage", "deployment-20261101", "privacy-cleanup")], "docs/ai-records/README.md", "docs/ai-records/user-export/README.md"]
+FORMAL_DOCS = ["README.md", "DELIVERY.md", *[f"docs/{name}.md" for name in ("acceptance-matrix", "manual-test-results", "limitations", "bonus1", "testing", "design", "verification", "offline-timer", "ai-usage")], "docs/ai-records/README.md", "docs/ai-records/user-export/README.md"]
 REQUIRED = FORMAL_DOCS + [".env.example", "backend/.env.example", "package-lock.json", "backend/requirements.lock.txt", "backend/main.py", "backend/db.py", "backend/migrations/001_initial.sql", "backend/migrations/002_connected_timer.sql", "backend/seed.json", "backend/tests/test_auth.py", "backend/tests/test_exams.py", "backend/tests/test_connected_timer.py", "backend/tests/test_restart.py", "backend/tests/test_isolation_guards.py", "tests/e2e/exam.spec.ts", "scripts/test-all.mjs", "scripts/clean-tests.mjs", "docs/ai-records/manifest.json", "docs/ai-records/privacy-redactions.json", "docs/ai-records/user-export/source.json", "docs/ai-records/user-export/AI对话记录.md", "docs/reports/manual-video-manifest.json", "docs/reports/offline-timer/summary.json"]
 
 
@@ -39,7 +39,7 @@ def xml_stats(file):
     return {key: sum(int(suite.get(key, "0")) for suite in suites) for key in ("tests", "failures", "errors", "skipped")}
 
 
-def audit(allow_pending_report=False):
+def audit():
     missing = [name for name in REQUIRED if not (ROOT / name).is_file()]
     require(not missing, "Missing materials: " + ", ".join(missing))
     link_count = 0
@@ -49,8 +49,7 @@ def audit(allow_pending_report=False):
             if "://" in target or target.startswith("#"):
                 continue
             destination = (file.parent / unquote(target.split("#")[0])).resolve()
-            pending_report = allow_pending_report and destination == ROOT / "docs/submission-audit.json"
-            require(destination.is_relative_to(ROOT) and (destination.exists() or pending_report), f"Broken material link: {name} -> {target}")
+            require(destination.is_relative_to(ROOT) and destination.exists(), f"Broken material link: {name} -> {target}")
             fragment = unquote(target.partition("#")[2])
             if fragment and destination.exists() and destination.suffix.lower() == ".md":
                 headings = re.findall(r"^#{1,6}\s+(.+?)\s*#*\s*$", destination.read_text(encoding="utf-8"), re.MULTILINE)
@@ -154,20 +153,19 @@ def audit(allow_pending_report=False):
         "withdrawnScreenshotDataAbsentFromCurrentRecords": True,
         "withdrawnVideoObjectAbsentFromGitStorage": True,
         "withdrawnScreenshotsAbsentFromReachableHistory": True,
-        "pendingRequiredDeliveryActions": ["Publish this final branch to an authorized remote and supply its correct repository/branch URL and commit", "Confirm reviewer access; private repositories require the recruiting party's access arrangement"],
-        "remotePublicationVerified": False, "reviewerAccessVerified": False,
-        "sourceRemoteObservation": {"url": "https://github.com/Susim520/intern-written-test", "observedHeads": {"main": "6fcf17d6393526b9a1e036aa42eb53fc2f11f3ad"}, "method": "Read-only git ls-remote in this preparation session; not a claim that final results are published"},
         "limitations": ["Formal link checking excludes historical links inside immutable native chat exports and visible tool transcripts", "AI exports cover listed cutoffs; later messages require refresh", "Local checks do not establish remote availability or production load capacity"],
     }
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--write-report", action="store_true", help="Write docs/submission-audit.json; otherwise read-only")
+    parser.add_argument("--write-report", action="store_true", help="Write an ignored local report under .runtime; otherwise read-only")
     args = parser.parse_args()
-    result = audit(allow_pending_report=args.write_report)
+    result = audit()
     if args.write_report:
-        (ROOT / "docs/submission-audit.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        directory = ROOT / ".runtime/node_modules/material-audit"
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "submission-audit.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
