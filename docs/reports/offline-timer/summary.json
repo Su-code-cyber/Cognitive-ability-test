@@ -1,0 +1,36 @@
+{
+  "startedAt": "2026-11-01T08:36:23.227Z",
+  "finishedAt": "2026-11-01T08:38:07.279Z",
+  "suites": [
+    {
+      "kind": "api",
+      "runId": "api-ggi0gQ",
+      "gitCommit": "fd37911128995780aee580141bc6a26eaee40085",
+      "tests": 55.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 29.927
+    },
+    {
+      "kind": "e2e",
+      "runId": "e2e-Ta4PF2",
+      "gitCommit": "fd37911128995780aee580141bc6a26eaee40085",
+      "tests": 9.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 66.77
+    }
+  ],
+  "networkAudit": {
+    "allowedOrigins": [
+      "http://127.0.0.1:12413",
+      "http://127.0.0.1:12414",
+      "null"
+    ],
+    "recordedRequests": 965,
+    "blockedAttempts": 2,
+    "allowedRequestsOutsideRun": 0
+  }
+}

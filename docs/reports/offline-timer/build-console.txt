@@ -1,0 +1,20 @@
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 4775 modules transformed.
+
+(!) outDir D:\Blue\intern-written-test-offline-fix\.runtime\node_modules\test-runs\e2e-Ta4PF2\build-output is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+rendering chunks...
+computing gzip size...
+../build-output/index.html                               0.50 kB │ gzip:   0.34 kB
+../build-output/assets/logo-campus-DaMxBtzw.png        224.65 kB
+../build-output/assets/guest-exam-main-BCMpqdXt.png  3,270.67 kB
+../build-output/assets/index-7Fyn4_NG.css               57.87 kB │ gzip:  10.73 kB
+../build-output/assets/index-BoMaghF2.js               878.26 kB │ gzip: 284.10 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 4.70s

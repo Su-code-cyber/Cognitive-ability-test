@@ -1,0 +1,2 @@
+ESLint exit=0
+TypeScript --noEmit exit=0

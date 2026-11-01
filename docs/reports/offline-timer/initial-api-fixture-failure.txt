@@ -1,0 +1,83 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+cachedir: D:\Blue\intern-written-test-offline-fix\.runtime\node_modules\test-runs\api-O1E9Bb\pytest-cache
+rootdir: D:\Blue\intern-written-test-offline-fix\.runtime\node_modules\test-runs\api-O1E9Bb\source
+configfile: pytest.ini
+testpaths: backend/tests
+collected 55 items
+
+backend\tests\test_auth.py ...................                           [ 34%]
+backend\tests\test_connected_timer.py ......F                            [ 47%]
+backend\tests\test_exams.py ...................                          [ 81%]
+backend\tests\test_inspect_results.py ..                                 [ 85%]
+backend\tests\test_isolation_guards.py .......                           [ 98%]
+backend\tests\test_restart.py .                                          [100%]
+
+================================== FAILURES ===================================
+__ test_v1_migration_preserves_answers_and_bootstraps_current_question_once ___
+
+tmp_path = WindowsPath('D:/Blue/intern-written-test-offline-fix/.runtime/node_modules/test-runs/api-O1E9Bb/cases/test_v1_migration_preserves_an0')
+
+    def test_v1_migration_preserves_answers_and_bootstraps_current_question_once(tmp_path):
+        db = Database(Settings(database_path=tmp_path / "legacy.sqlite3"))
+        migration = Path(__file__).resolve().parents[1] / "migrations/001_initial.sql"
+        seed = json.loads(migration.parent.parent.joinpath("seed.json").read_text(encoding="utf-8"))
+        with db.connect() as conn:
+            conn.executescript(migration.read_text(encoding="utf-8"))
+            conn.execute("INSERT INTO users VALUES (1, '13800000001', 'test-hash', 1)")
+            conn.execute("INSERT INTO exams(id,title) VALUES ('cognitive-demo','legacy')")
+            conn.execute("INSERT INTO exam_sessions(session_code,user_id,exam_id,current_index,started_at,question_started_at) VALUES ('legacy',1,'cognitive-demo',2,1,1)")
+            for index, q in enumerate(seed["questions"][:2], 1):
+                conn.execute("INSERT INTO session_questions VALUES ('legacy',?,?,?)", (index, q["id"], json.dumps({**q, "timeLimitSeconds": 60})))
+            conn.execute("INSERT INTO answers VALUES ('legacy',1,'q1','C',2,0,1)")
+            before = tuple(conn.execute("SELECT * FROM answers").fetchone())
+        db.initialize()
+        from backend.exams import resume, heartbeat
+        from backend.schemas import QuestionTimerRequest
+        with db.connect(write=True) as conn:
+            assert conn.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 2
+            assert tuple(conn.execute("SELECT * FROM answers").fetchone()) == before
+>           q = resume(conn, 1, "legacy", 10000)["currentQuestion"]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_connected_timer.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\exams.py:48: in resume
+    return session_result(conn, settle_timer(conn, owned_session(conn, code, user_id), now, reconnect=True), now)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\exams.py:89: in session_result
+    "currentQuestion": current_question(conn, session, now),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+conn = <sqlite3.Connection object at 0x00000197CB5CA3E0>
+session = <sqlite3.Row object at 0x00000197CB666AA0>, now = 10000
+
+    def current_question(conn, session, now):
+        if session["status"] == "completed":
+            return None
+        q = snapshot_at(conn, session["session_code"], session["current_index"])
+        # Explicit allowlist: never send the snapshot's correctAnswer to the candidate.
+        return {
+>           "questionId": q["questionId"], "content": q["content"],
+                          ^^^^^^^^^^^^^^^
+            "questionType": q["questionType"], "options": q["options"],
+            "optionKeys": list(q["options"]), "questionIndex": session["current_index"],
+            "totalQuestions": total_questions(conn, session["session_code"]),
+            "timeLimitSeconds": q["timeLimitSeconds"],
+            "remainingSeconds": math.ceil(session["question_remaining_seconds"] if session["question_remaining_seconds"] is not None else q["timeLimitSeconds"]),
+            "unansweredWarningSeconds": min(10, q["timeLimitSeconds"]),
+        }
+E       KeyError: 'questionId'
+
+backend\exams.py:75: KeyError
+============================== warnings summary ===============================
+..\..\..\..\..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\Blue\intern-written-test-offline-fix\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: D:\Blue\intern-written-test-offline-fix\.runtime\node_modules\test-runs\api-O1E9Bb\reports\api.xml -
+=========================== short test summary info ===========================
+FAILED backend/tests/test_connected_timer.py::test_v1_migration_preserves_answers_and_bootstraps_current_question_once
+================== 1 failed, 54 passed, 1 warning in 30.22s ===================

@@ -1,0 +1,16 @@
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 2 modules transformed.
+✗ Build failed in 93ms
+error during build:
+[commonjs--resolver] EPERM: operation not permitted, realpath 'D:\Blue\intern-written-test-offline-fix\.runtime\node_modules\test-runs\e2e-Ta4PF2\source\src\main.tsx'
+    at node:fs:2838:18
+    at getRealPath (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:33184:36)
+    at tryResolveRealFileOrType (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:33178:9)
+    at tryCleanFsResolve (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:32902:21)
+    at tryFsResolve (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:32895:14)
+    at Object.handler (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:32752:16)
+    at Object.handler (file:///D:/Blue/intern-written-test/node_modules/vite/dist/node/chunks/config.js:33957:13)
+    at file:///D:/Blue/intern-written-test/node_modules/rollup/dist/es/shared/node-entry.js:22571:40
+    at async PluginDriver.hookFirstAndGetPlugin (file:///D:/Blue/intern-written-test/node_modules/rollup/dist/es/shared/node-entry.js:22453:28)
+    at async resolveId (file:///D:/Blue/intern-written-test/node_modules/rollup/dist/es/shared/node-entry.js:20912:26)

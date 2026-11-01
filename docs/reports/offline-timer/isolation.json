@@ -1,0 +1,15 @@
+{
+  "testDatabase": "D:\\Blue\\intern-written-test-offline-fix\\.runtime\\node_modules\\test-runs\\e2e-Ta4PF2\\state\\exam.sqlite3",
+  "sourceSnapshot": "D:\\Blue\\intern-written-test-offline-fix\\.runtime\\node_modules\\test-runs\\e2e-Ta4PF2\\source",
+  "frontendCache": "D:\\Blue\\intern-written-test-offline-fix\\.runtime\\node_modules\\test-runs\\e2e-Ta4PF2\\vite-cache",
+  "apiOrigin": "http://127.0.0.1:12413",
+  "uiOrigin": "http://127.0.0.1:12414",
+  "serverIdentityVerified": true,
+  "protectedPortsExcluded": [
+    5173,
+    8003
+  ],
+  "workers": 1,
+  "browserProfiles": "D:\\Blue\\intern-written-test-offline-fix\\.runtime\\node_modules\\test-runs\\e2e-Ta4PF2\\tmp",
+  "sharedDevelopmentServicesReused": false
+}

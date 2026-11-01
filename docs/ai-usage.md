@@ -10,7 +10,7 @@
 
 ## 实施记录位置
 
-- Git 分支：`feature/python-backend-tests`；提交历史保留后端、前端和测试、文档等阶段。
+- Git 分支：初版 `feature/python-backend-tests`；断网修复位于独立工作目录的 `fix/offline-exam-timer`，避免热更新影响活动用户。提交历史保留后端、前端和测试、文档等阶段。
 - 自动化测试源码：`backend/tests/`、`tests/e2e/`。
 - 实际结果：`docs/verification.md` 及 `docs/reports/`。
 - 依赖、临时文件、测试浏览器、数据库和日志限制在工作区，未修改全局 Python 或全局 Git 配置，未推送远程。

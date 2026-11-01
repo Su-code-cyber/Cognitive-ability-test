@@ -2,9 +2,35 @@
 
 本次开发与验证环境：Windows、Python 3.12.14、Node.js 24.15.0、npm 11.12.1。Python 完整版本锁定在 `backend/requirements.lock.txt`，前端和 Playwright 锁定在 `package-lock.json`。
 
-本文以下表格保留首次功能验收记录。加分题 1 后续补齐了活动用户保护、源码/缓存隔离、运行守卫和报告归档，最终交付以 [加分题1说明](bonus1.md) 和 [本轮结果](reports/bonus1/summary.json) 为准，不能把旧的固定端口或旧临时目录说明当成当前测试入口。
+最新版本增加了断网暂停与续考修复，当前结果见下节及 [本轮汇总](reports/offline-timer/summary.json)。之后保留的加分题1初版及首次功能验收记录属于历史结果，不能把旧的离线持续计时规则、固定端口或旧临时目录说明当成当前行为。
 
-## 加分题1最终验收（当前结果）
+## 断网计时修复回归（当前结果）
+
+2026-11-01 北京时间 16:36:23 至 16:38:07，在独立工作目录实际执行 `node scripts/test-all.mjs` 全部通过。测试代码提交 `fd37911`，分支 `fix/offline-exam-timer`；源码逐文件哈希保存在对应 run.json。
+
+| 验证 | 结果 | 证据 |
+| --- | --- | --- |
+| API、数据库、真实进程重启及隔离守卫 | **55 通过，0 失败，0 错误，0 跳过** | [JUnit](reports/offline-timer/api-results.xml)、[控制台](reports/offline-timer/api-console.txt) |
+| 真实浏览器及网络防护 | **9 通过，0 失败，0 错误，0 跳过** | [JUnit](reports/offline-timer/e2e-results.xml)、[控制台](reports/offline-timer/e2e-console.txt) |
+| 浏览器请求路线审计 | 965 条记录；2 次开发地址尝试在发送前被拒绝；允许发出的本轮地址外请求 0 | [审计](reports/offline-timer/network-audit.jsonl)、[汇总](reports/offline-timer/summary.json) |
+| ESLint、TypeScript | 均退出 0 | [静态检查记录](reports/offline-timer/static-checks.txt) |
+| 隔离源码生产构建 | 成功，4775 模块；保留包体积提示和独立输出目录提示 | [构建记录](reports/offline-timer/build-console.txt) |
+
+API 运行 ID `api-ggi0gQ`，浏览器 `e2e-Ta4PF2`，测试地址 `127.0.0.1:12413/12414`，单 worker、无自动重试。继承的完整业务、用户隔离、提前交卷、幂等及在线超时用例全部通过。新增用例证明：
+
+- 在线消耗 13 秒后，断开 600 秒并重建后端，仍从第 1 题剩余 47 秒继续，提交可正常保存。
+- 只剩 1 秒时短暂离线 2 秒，恢复仍有 1 秒；长心跳空窗也不继续扣时。
+- 小数预算不因显示取整而增加；并发心跳不重复扣时，旧题和完成后的心跳被拒绝；A 离线不影响 B 在线正常超时。
+- v1 真实表结构升级后，已交答案逐字段保持，当前旧题只初始化一次，重启不重置。
+- 浏览器自身断网 9 秒（测试每题时限 8 秒）后仍是原题，再执行真正的离线刷新并等待 9 秒，联网后仍能继续原题并成功提交。另一用例阻断本页探测请求，浏览器仍在线时也能暂停并自动恢复。
+
+见 [暂停截图](reports/offline-timer/offline-paused.png)、[HTML 报告压缩包](reports/offline-timer/browser-report.zip) 及 [校验清单](reports/offline-timer/checksums.sha256)。这些是独立合成数据，不包含用户活动数据库或浏览器资料。
+
+本轮曾因受限环境的本地通信停在测试初始化，终止后确认本轮进程均已退出才清理其失效锁；在允许本地通信的环境重跑。首轮 API 为 54 通过、1 失败，原因是新增迁移测试构造的快照漏了 `questionId`，与真实旧快照格式不符；修正测试夹具后全部通过，保留 [初次失败记录](reports/offline-timer/initial-api-fixture-failure.txt)。构建也曾遇到沙箱 EPERM，使用相同快照在授权环境重跑成功，保留 [原始失败](reports/offline-timer/initial-sandbox-build-failure.txt)。没有把这些失败改写为成功记录。
+
+本次所有修复源码与测试均位于独立 Git 工作目录。原项目仍在 `feature/python-backend-tests`；最终只读检查原项目 tracked diff 为空，7 个用户上传视频仍保持原文件名及长度。没有操作系统级断网、重启用户服务、迁移或清理用户数据库；原服务需在无人作答时按 [切换步骤](offline-timer.md) 启用修复。物理硬件资源仍共享，未覆盖容量或物理网络故障。
+
+## 加分题1初版验收（历史记录）
 
 2026-10-31 北京时间 20:22:40 至 20:24:02，实际执行 `node scripts/test-all.mjs` 返回成功。API 与浏览器按顺序执行，无自动重试、无跳过用例。
 
