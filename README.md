@@ -2,7 +2,7 @@
 
 React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需原 task4 服务。选做题为 **加分题 1：AI 辅助测试策略与自动化测试**。
 
-评审建议先阅读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
+最终采用 **Git 仓库链接** 交付。自行核查请先读 [提交核查清单](SUBMISSION_CHECKLIST.md)；评审建议先读 [最终交付说明](DELIVERY.md)，再按本页部署。基本题和加分题的 [逐项验收证据](docs/acceptance-matrix.md)、[手动测试录屏索引](docs/manual-test-results.md) 与 [已知边界](docs/limitations.md) 已分别整理。最新实际自动化结果为 **55 项 API/数据库/隔离 + 9 项浏览器通过**；未进行大规模容量压测。
 
 提供手机号加密码注册、登录、退出、Cookie 会话刷新；6 题示例试卷（含单选、多选）；逐题提交、单题倒计时、超时空答、刷新续考、正常及提前交卷。用户、登录会话、试卷、场次和答案均持久化。
 
@@ -20,12 +20,12 @@ React / TypeScript 前端 + Python / FastAPI 后端 + SQLite 数据库。无需�
 - Node.js 20.19+ 或 22.12+；本次实测 Node 24.15.0、npm 11.12.1。
 - 普通本地部署即可，不需要外部数据库、短信服务或云服务。
 
-下列命令在解压后的项目根目录执行；`D:\Blue\intern-written-test` 只是本机路径示例，请替换为实际位置。Windows 示例使用 PowerShell，不需要激活虚拟环境。Python 和 npm 的依赖、缓存、临时文件及浏览器全部放在项目内。
+下列命令在克隆后的仓库根目录执行；本地提交目录为 `D:\Blue\final-submission`，请替换为实际位置。Windows 示例使用 PowerShell，不需要激活虚拟环境。Python 和 npm 的依赖、缓存、临时文件及浏览器全部放在项目内。
 
 ## 首次安装（Windows PowerShell）
 
 ```powershell
-cd D:\Blue\intern-written-test
+cd D:\Blue\final-submission
 New-Item -ItemType Directory -Force .runtime/tmp | Out-Null
 $env:TEMP = Join-Path (Get-Location) '.runtime\tmp'
 $env:TMP = $env:TEMP
@@ -166,14 +166,14 @@ docs/                     # 设计、测试、验收和 AI 使用说明
 
 ## Git 与交付
 
-功能开发位于 `feature/python-backend-tests` 分支。代码、迁移和测试分阶段提交，运行数据和依赖不入库。尚未推送远程。
+原功能开发位于 `feature/python-backend-tests`，本提交目录使用 `submission/final` 并保留已有提交历史。代码、迁移和测试分阶段提交，运行数据和依赖不入库。最终远程发布尚未执行；不要把来源仓库旧 main 链接当作交付完成证明。
 
-完整可见对话及可导出的工具记录已分段保存在 `docs/ai-records/`，截止时间和宿主模型信息见清单；`docs/ai-usage.md` 是工具说明，不能代替完整记录。聊天继续后应在提交前刷新导出。7 个用户手动录屏随最终源码包交付，实际用户数据库、备份、Cookie、个人浏览器资料及依赖目录不入包。
+用户在工作区提供的原始聊天导出已放入 [docs/ai-records/user-export/AI对话记录.md](docs/ai-records/user-export/AI对话记录.md)，保留原字节；完整可见工具记录及后续对话分段保存在同级目录，截止时间和宿主模型信息见清单。`docs/ai-usage.md` 是工具说明，不能代替完整记录。聊天继续后应在提交前刷新记录。7 个手动录屏直接纳入 Git，实际用户数据库、备份、Cookie、个人浏览器资料及依赖目录不入库。
 
-如需重新打包，先提交要交付的源码、材料和录屏，再执行（输出位于项目 `.runtime/node_modules/deliverables/`）：
+材料可使用 Python 标准库脚本核查，不需要启动服务或安装前端依赖：
 
 ```powershell
-.\.venv\Scripts\python.exe -B scripts/package-delivery.py
+python -B scripts/audit-submission.py
 ```
 
-打包脚本只读取当前 Git 已提交快照，校验报告和录屏，附上提交号、逐文件 SHA-256 和完整 ZIP 校验值。详情及交付项对应见 [DELIVERY.md](DELIVERY.md)。
+该命令只读检查必需文件、正式材料链接、报告和视频校验值、AI 记录及业务源码与测试证据的一致性，不访问数据库或运行服务；有本地 `.venv` 时也可使用 `.\.venv\Scripts\python.exe`。远程仓库的发布、正确分支和评审访问权限需要另行确认，见 [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)。

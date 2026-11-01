@@ -1,5 +1,6 @@
 # Preserve the exact whitespace of exported user-visible dialogue and tool output.
 docs/ai-records/*.visible.md -whitespace
+docs/ai-records/user-export/* -text -whitespace
 # Checksummed evidence must retain its original bytes across Git checkouts/archives.
 docs/reports/bonus1/* -text -whitespace
 docs/reports/offline-timer/* -text -whitespace

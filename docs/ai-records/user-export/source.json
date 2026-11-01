@@ -1,0 +1,8 @@
+{
+  "sourceFileName": "AI对话记录.md",
+  "file": "AI对话记录.md",
+  "bytes": 133501,
+  "sha256": "6bc4163898ce46a5babade0d6cbbde2c200d68b110b34ce0ab873c277a95ab80",
+  "preservation": "Byte-exact user-provided export; no line-ending conversion or content rewrite",
+  "coverage": "Starts with the initial project-understanding request; ends with the previous final-materials reply. Later turns and full available tool outputs are supplemented by the parent manifest."
+}

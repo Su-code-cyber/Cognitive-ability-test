@@ -34,4 +34,4 @@
 | 设计及已知问题 | [design.md](design.md)、[offline-timer.md](offline-timer.md)、[limitations.md](limitations.md) |
 | 基本题/加分题验收和结果 | 本表、[manual-test-results.md](manual-test-results.md)、[verification.md](verification.md)、`reports/` |
 | AI 名称、用途、可获取版本及完整可见过程 | [ai-usage.md](ai-usage.md)、[ai-records/README.md](ai-records/README.md)、[manifest](ai-records/manifest.json) |
-| 可获取的提交形式 | 源码 ZIP、包内逐文件清单、ZIP 外部 SHA-256；无需候选人的本地数据库或私人登录权限 |
+| 可获取的提交形式 | Git 仓库中的 `submission/final` 分支及最终提交号；本地材料已备齐，远程发布和评审访问仍待确认，见 [核查清单](../SUBMISSION_CHECKLIST.md) |
